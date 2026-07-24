@@ -1,0 +1,28 @@
+<div class="pagination-container" *ngIf="totalItems > 0">
+  <div class="pagination-info">
+    Showing <span class="range-bold">{{ startRange }}</span> to <span class="range-bold">{{ endRange }}</span> of <span class="range-bold">{{ totalItems }}</span> entries
+  </div>
+  
+  <div class="pagination-controls">
+    <button class="control-btn" 
+            [disabled]="currentPage === 1" 
+            (click)="selectPage(currentPage - 1)"
+            aria-label="Previous page">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+    </button>
+    
+    <button *ngFor="let page of pages" 
+            class="page-number-btn" 
+            [ngClass]="{'active': page === currentPage}"
+            (click)="selectPage(page)">
+      {{ page }}
+    </button>
+    
+    <button class="control-btn" 
+            [disabled]="currentPage === totalPages" 
+            (click)="selectPage(currentPage + 1)"
+            aria-label="Next page">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+    </button>
+  </div>
+</div>

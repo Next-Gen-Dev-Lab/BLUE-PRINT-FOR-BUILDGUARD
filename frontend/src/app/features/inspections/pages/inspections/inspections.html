@@ -1,0 +1,255 @@
+<div class="inspections-viewport">
+  <!-- Page Header -->
+  <div class="inspections-header-row">
+    <div class="header-titles">
+      <h2>Inspection & Audits Registry</h2>
+      <p>Schedule safety checks, assess site compliance, and complete interactive inspector checklists.</p>
+    </div>
+    
+    <!-- Action buttons & Filters -->
+    <div class="controls-container">
+      <div class="search-bar-wrapper">
+        <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <label for="inspectionsSearchInput" class="sr-only">Search inspections</label>
+        <input id="inspectionsSearchInput"
+               type="text" 
+               placeholder="Search by project, inspector, type..." 
+               [(ngModel)]="searchQuery" 
+               (ngModelChange)="applyFilters()" 
+               class="search-input">
+      </div>
+
+      <div class="filter-actions-group">
+        <label for="inspectionsStatusSelect" class="sr-only">Filter by status</label>
+        <select id="inspectionsStatusSelect" [(ngModel)]="statusFilter" (change)="applyFilters()" class="control-select">
+          <option value="">All Statuses</option>
+          <option value="scheduled">Scheduled Only</option>
+          <option value="passed">Passed Audits</option>
+          <option value="failed">Failed Audits</option>
+          <option value="pending_review">Pending Review</option>
+        </select>
+        
+        <button class="schedule-trigger-btn" (click)="toggleScheduleForm()">
+          {{ isScheduling ? 'Close Form' : 'Schedule Audit' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <app-loading-spinner *ngIf="isLoading" message="Compiling audit registries..."></app-loading-spinner>
+
+  <!-- Schedule New Inspection Card Overlay -->
+  <div class="scheduling-card" *ngIf="isScheduling">
+    <h5>Schedule New Safety Audit</h5>
+    <div class="scheduling-grid">
+      <div class="form-group">
+        <label for="schedProj">Target Project Site</label>
+        <select id="schedProj" [(ngModel)]="scheduleProjectId" class="sidebar-select">
+          <option value="" disabled selected>Select project site...</option>
+          <option *ngFor="let proj of projects" [value]="proj.id">{{ proj.name }}</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="schedType">Audit Type / Scope</label>
+        <input type="text" id="schedType" [(ngModel)]="scheduleType" placeholder="e.g. Electrical Safety, Scaffolding" class="sidebar-input">
+      </div>
+      <div class="form-group">
+        <label for="schedDate">Planned Date</label>
+        <input type="date" id="schedDate" [(ngModel)]="scheduleDate" class="sidebar-input">
+      </div>
+      <div class="form-group">
+        <label for="schedInsp">Assigned Safety Inspector</label>
+        <input type="text" id="schedInsp" [(ngModel)]="scheduleInspector" class="sidebar-input">
+      </div>
+    </div>
+    <div class="scheduling-actions">
+      <button class="btn btn-secondary" (click)="toggleScheduleForm()">Cancel</button>
+      <button class="btn btn-primary" (click)="submitSchedule()" [disabled]="!scheduleProjectId || !scheduleType.trim() || isSubmitting">
+        Confirm Schedule
+      </button>
+    </div>
+  </div>
+
+  <!-- Empty state -->
+  <app-empty-state *ngIf="!isLoading && filteredInspections.length === 0"
+                   title="No audits match filters"
+                   description="Try refining search query text or status selectors."
+                   (actionClick)="searchQuery = ''; statusFilter = ''; applyFilters()"
+                   actionText="Clear Filters"
+                   iconType="inspection"></app-empty-state>
+
+  <!-- Main Grid Splits (Upcoming / History) -->
+  <div class="audits-grid-layout" *ngIf="!isLoading && filteredInspections.length > 0">
+    
+    <!-- Left Split: Upcoming Audits -->
+    <div class="split-col upcoming-col">
+      <div class="col-header">
+        <h4>Scheduled & Pending Review</h4>
+        <span class="col-count font-bold">
+          {{ (filteredInspections | filterScheduled).length }}
+        </span>
+      </div>
+      
+      <div class="audits-stack" *ngIf="(filteredInspections | filterScheduled).length > 0; else emptyUpcoming">
+        <div class="audit-card" 
+             *ngFor="let audit of filteredInspections | filterScheduled"
+             (click)="viewInspection(audit)"
+             (keydown.enter)="viewInspection(audit)"
+             (keydown.space)="viewInspection(audit); $event.preventDefault()">
+          <div class="card-header">
+            <span class="status-pill font-bold" [ngClass]="getBadgeClass(audit.status)">
+              {{ audit.status | uppercase }}
+            </span>
+            <span class="card-date font-mono">{{ audit.date }}</span>
+          </div>
+          <h5 class="card-title">{{ audit.type }}</h5>
+          <span class="card-proj">{{ audit.projectName }}</span>
+          <div class="card-footer">
+            <span class="card-inspector">Auditor: {{ audit.assignedInspector }}</span>
+            <button class="card-action-btn">
+              {{ audit.status === 'scheduled' ? 'Start Audit' : 'Review' }}
+            </button>
+          </div>
+        </div>
+      </div>
+      <ng-template #emptyUpcoming>
+        <div class="column-empty-state">No upcoming safety audits.</div>
+      </ng-template>
+    </div>
+
+    <!-- Right Split: Past Completed Audits -->
+    <div class="split-col history-col">
+      <div class="col-header">
+        <h4>Audit History Logs</h4>
+        <span class="col-count font-bold">
+          {{ (filteredInspections | filterHistory).length }}
+        </span>
+      </div>
+      
+      <div class="audits-stack" *ngIf="(filteredInspections | filterHistory).length > 0; else emptyHistory">
+        <div class="audit-card history-item" 
+             *ngFor="let audit of filteredInspections | filterHistory"
+             (click)="viewInspection(audit)"
+             (keydown.enter)="viewInspection(audit)"
+             (keydown.space)="viewInspection(audit); $event.preventDefault()">
+          <div class="card-header">
+            <span class="status-pill font-bold" [ngClass]="getBadgeClass(audit.status)">
+              {{ audit.status | uppercase }}
+            </span>
+            <span class="card-score font-bold" [ngClass]="{
+              'score-pass': audit.status === 'passed',
+              'score-fail': audit.status === 'failed'
+            }">{{ audit.score }}% Rating</span>
+          </div>
+          <h5 class="card-title">{{ audit.type }}</h5>
+          <span class="card-proj">{{ audit.projectName }}</span>
+          <div class="card-footer">
+            <span class="card-inspector font-mono">{{ audit.date }} | By {{ audit.assignedInspector }}</span>
+            <button class="card-action-btn text-blue">View Record</button>
+          </div>
+        </div>
+      </div>
+      <ng-template #emptyHistory>
+        <div class="column-empty-state">No completed audits recorded.</div>
+      </ng-template>
+    </div>
+  </div>
+
+  <!-- Interactive Checklist Modal Drawer Overlay -->
+  <div class="modal-backdrop" *ngIf="selectedInspection" (click)="closeInspectionModal()" (keydown.escape)="closeInspectionModal()">
+    <div class="checklist-modal" (click)="$event.stopPropagation()" (keydown)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div class="modal-titles">
+          <h3>Safety Audit Sheet</h3>
+          <span class="modal-sub">{{ selectedInspection.type }}</span>
+        </div>
+        <button class="close-modal-btn" (click)="closeInspectionModal()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+
+      <div class="modal-body scrollable-modal-body">
+        <!-- Telemetry specifications list -->
+        <div class="modal-telemetry">
+          <div class="tel-item">
+            <span class="tel-lbl">Project Site</span>
+            <span class="tel-val font-semibold">{{ selectedInspection.projectName }}</span>
+          </div>
+          <div class="tel-item">
+            <span class="tel-lbl">Target Date</span>
+            <span class="tel-val font-semibold font-mono">{{ selectedInspection.date }}</span>
+          </div>
+          <div class="tel-item">
+            <span class="tel-lbl">Inspector</span>
+            <span class="tel-val font-semibold">{{ selectedInspection.assignedInspector }}</span>
+          </div>
+        </div>
+
+        <!-- Checklist items box -->
+        <div class="checklist-block">
+          <h5>Field Verification Checklist</h5>
+          
+          <div class="checklist-items-list">
+            <div class="checklist-row-item" *ngFor="let item of selectedInspection.checklist">
+              <div class="item-meta">
+                <span class="item-name font-bold">{{ item.item }}</span>
+                <!-- Comment input for remarks -->
+                <label [for]="'comment-' + item.id" class="sr-only">Comment details</label>
+                <input [id]="'comment-' + item.id"
+                       type="text" 
+                       placeholder="Add comment details..." 
+                       [ngModel]="item.comments" 
+                       (ngModelChange)="updateChecklistItemComment(item.id, $event)"
+                       [disabled]="!checklistEditMode"
+                       class="item-comment-input">
+              </div>
+
+              <!-- Options Selectors -->
+              <div class="item-selectors">
+                <button class="sel-btn pass" 
+                        [ngClass]="{'active': item.status === 'passed'}"
+                        (click)="updateChecklistItemStatus(item.id, 'passed')"
+                        [disabled]="!checklistEditMode"
+                        type="button">Pass</button>
+                <button class="sel-btn fail" 
+                        [ngClass]="{'active': item.status === 'failed'}"
+                        (click)="updateChecklistItemStatus(item.id, 'failed')"
+                        [disabled]="!checklistEditMode"
+                        type="button">Fail</button>
+                <button class="sel-btn na" 
+                        [ngClass]="{'active': item.status === 'n/a'}"
+                        (click)="updateChecklistItemStatus(item.id, 'n/a')"
+                        [disabled]="!checklistEditMode"
+                        type="button">N/A</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Notes text area -->
+        <div class="audit-notes-block">
+          <label for="auditNotes">Inspector Review Remarks</label>
+          <textarea id="auditNotes" 
+                    [(ngModel)]="auditNotes" 
+                    [disabled]="!checklistEditMode"
+                    placeholder="Provide supervisor safety notes, required remediation dates, minor observations..."
+                    rows="3" 
+                    class="notes-textarea"></textarea>
+        </div>
+      </div>
+
+      <!-- Action buttons -->
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeInspectionModal()">Close</button>
+        <button class="btn btn-primary" 
+                *ngIf="checklistEditMode"
+                (click)="submitInspectionResults()"
+                [disabled]="isSubmitting">
+          <span *ngIf="!isSubmitting">Compile & Submit Audit</span>
+          <app-loading-spinner *ngIf="isSubmitting" size="sm" color="white"></app-loading-spinner>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

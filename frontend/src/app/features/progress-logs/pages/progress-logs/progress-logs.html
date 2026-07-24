@@ -1,0 +1,142 @@
+<div class="logs-viewport">
+  <div class="logs-header-row">
+    <h2>Daily Progress Work Log</h2>
+    <p>Record worker attendance, materials utilized, and tasks finished on project sites daily.</p>
+  </div>
+
+  <app-loading-spinner *ngIf="isLoading" message="Preparing work sheets..."></app-loading-spinner>
+
+  <!-- Logs Form Container -->
+  <div class="logs-card" *ngIf="!isLoading">
+    <form [formGroup]="logForm" class="logs-form">
+      
+      <!-- Section 1: General Details -->
+      <div class="form-section">
+        <h5 class="section-title">1. Site Location & Metadata</h5>
+        <div class="form-grid">
+          
+          <!-- Project Selector -->
+          <div class="form-group">
+            <label for="projectId">Project Site</label>
+            <div class="select-wrapper" [ngClass]="{'has-error': logForm.get('projectId')?.touched && logForm.get('projectId')?.invalid}">
+              <select id="projectId" formControlName="projectId" class="select-input">
+                <option value="" disabled selected>Select active project site...</option>
+                <option *ngFor="let proj of projects" [value]="proj.id">{{ proj.name }}</option>
+              </select>
+            </div>
+            <span class="validation-message" *ngIf="logForm.get('projectId')?.touched && logForm.get('projectId')?.invalid">
+              Project selection is required
+            </span>
+          </div>
+
+          <!-- Date Selector -->
+          <div class="form-group">
+            <label for="date">Work Sheet Date</label>
+            <div class="input-wrapper" [ngClass]="{'has-error': logForm.get('date')?.touched && logForm.get('date')?.invalid}">
+              <input type="date" id="date" formControlName="date" class="date-input">
+            </div>
+            <span class="validation-message" *ngIf="logForm.get('date')?.touched && logForm.get('date')?.invalid">
+              Log date is required
+            </span>
+          </div>
+
+          <!-- Site Location (Auto-filled on project select) -->
+          <div class="form-group span-2">
+            <label for="location">Site Location / Address</label>
+            <div class="input-wrapper" [ngClass]="{'has-error': logForm.get('location')?.touched && logForm.get('location')?.invalid}">
+              <input type="text" id="location" formControlName="location" placeholder="Address will auto-fill on project selection" readonly class="readonly-input">
+            </div>
+            <span class="validation-message" *ngIf="logForm.get('location')?.touched && logForm.get('location')?.invalid">
+              Location details are missing
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 2: Work telemetry details -->
+      <div class="form-section">
+        <h5 class="section-title">2. Operations Telemetry</h5>
+        <div class="form-grid">
+          <!-- Workers Count -->
+          <div class="form-group">
+            <label for="workersCount">Head Count (Workers on Site)</label>
+            <div class="input-wrapper" [ngClass]="{'has-error': logForm.get('workersCount')?.touched && logForm.get('workersCount')?.invalid}">
+              <input type="number" id="workersCount" formControlName="workersCount" placeholder="0" min="0">
+            </div>
+            <span class="validation-message" *ngIf="logForm.get('workersCount')?.touched && logForm.get('workersCount')?.invalid">
+              Workers count must be at least 0
+            </span>
+          </div>
+
+          <!-- Weather Options -->
+          <div class="form-group">
+            <label for="weather">Local Weather State</label>
+            <div class="select-wrapper">
+              <select id="weather" formControlName="weather" class="select-input">
+                <option *ngFor="let opt of weatherOptions" [value]="opt.value">{{ opt.label }}</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Work Description -->
+          <div class="form-group span-2">
+            <label for="workDescription">Work Description (Finished Tasks)</label>
+            <div class="textarea-wrapper" [ngClass]="{'has-error': logForm.get('workDescription')?.touched && logForm.get('workDescription')?.invalid}">
+              <textarea id="workDescription" formControlName="workDescription" placeholder="Provide detail regarding concrete pours, structural checks, facade status (Min. 15 characters)..." rows="4"></textarea>
+            </div>
+            <span class="validation-message" *ngIf="logForm.get('workDescription')?.touched && logForm.get('workDescription')?.hasError('required')">
+              Work description is required
+            </span>
+            <span class="validation-message" *ngIf="logForm.get('workDescription')?.touched && logForm.get('workDescription')?.hasError('minlength')">
+              Work description must be at least 15 characters long
+            </span>
+          </div>
+
+          <!-- Materials Used -->
+          <div class="form-group span-2">
+            <label for="materialUsed">Materials Utilized & Quantities</label>
+            <div class="textarea-wrapper">
+              <textarea id="materialUsed" formControlName="materialUsed" placeholder="e.g. 50 cubic yards of concrete, 20 steel studs, 4 panel anchor sets..." rows="3"></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 3: File Attachment Mockup -->
+      <div class="form-section">
+        <h5 class="section-title">3. Documentation & Image Evidence</h5>
+        <div class="form-grid">
+          <div class="form-group">
+            <span class="form-group-label">Images Evidence (PNG, JPG)</span>
+            <app-file-upload accept="image/*" [multiple]="true" helperText="PNG, JPG up to 10MB" (filesSelected)="onImagesSelected($event)"></app-file-upload>
+          </div>
+          
+          <div class="form-group">
+            <span class="form-group-label">Reports / Sign-Off Documents (PDF)</span>
+            <app-file-upload accept=".pdf" [multiple]="false" helperText="PDF Reports only" (filesSelected)="onPDFsSelected($event)"></app-file-upload>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 4: Notes -->
+      <div class="form-section">
+        <h5 class="section-title">4. Supervisor / Construction Notes</h5>
+        <div class="form-group">
+          <label for="notes" class="sr-only">Supervisor / Construction Notes</label>
+          <textarea id="notes" formControlName="notes" placeholder="Add optional supervision safety logs, minor team changes, delay reasons..." rows="3"></textarea>
+        </div>
+      </div>
+
+      <!-- Buttons Row -->
+      <div class="actions-row">
+        <button type="button" class="btn btn-secondary" (click)="submitLog(true)" [disabled]="isSubmitting">
+          Save Draft
+        </button>
+        <button type="button" class="btn btn-primary" (click)="submitLog(false)" [disabled]="logForm.invalid || isSubmitting">
+          <span *ngIf="!isSubmitting">Submit Log Sheet</span>
+          <app-loading-spinner *ngIf="isSubmitting" size="sm" color="white"></app-loading-spinner>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

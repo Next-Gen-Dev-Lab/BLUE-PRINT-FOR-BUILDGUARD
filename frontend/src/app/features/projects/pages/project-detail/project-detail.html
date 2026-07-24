@@ -1,0 +1,201 @@
+<div class="project-detail-viewport" *ngIf="project">
+  <!-- Back navigation & Title -->
+  <div class="detail-header-row">
+    <div class="back-nav">
+      <a routerLink="/projects" class="back-link">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+        Back to Registry
+      </a>
+    </div>
+    
+    <div class="project-title-area">
+      <div class="title-main">
+        <h2>{{ project.name }}</h2>
+        <span class="status-badge" [ngClass]="getStatusClass(project.status)">
+          {{ getStatusLabel(project.status) }}
+        </span>
+      </div>
+      <p class="project-loc">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+        {{ project.location }}
+      </p>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <app-loading-spinner *ngIf="isLoading" message="Retrieving safety telemetry..."></app-loading-spinner>
+
+  <div *ngIf="!isLoading">
+    <!-- Stats Strip -->
+    <div class="detail-stats-grid">
+      <div class="stat-box compliance">
+        <span class="stat-label">Safety Index Rating</span>
+        <h3 class="stat-val" [ngClass]="{
+          'text-success': project.complianceScore >= 90,
+          'text-warning': project.complianceScore >= 75 && project.complianceScore < 90,
+          'text-danger': project.complianceScore < 75
+        }">{{ project.complianceScore }}%</h3>
+        <span class="stat-desc">AI safety sensor average</span>
+      </div>
+      <div class="stat-box progress">
+        <span class="stat-label">Construction Progress</span>
+        <h3 class="stat-val text-blue">{{ project.progress }}%</h3>
+        <div class="stat-progress-bar-bg">
+          <div class="stat-progress-bar-fill" [style.width.%]="project.progress"></div>
+        </div>
+      </div>
+      <div class="stat-box docs">
+        <span class="stat-label">Attached Blueprints</span>
+        <h3 class="stat-val">{{ blueprints.length }}</h3>
+        <span class="stat-desc">Approved CAD designs</span>
+      </div>
+      <div class="stat-box audits">
+        <span class="stat-label">Completed Inspections</span>
+        <h3 class="stat-val">{{ inspections.length }}</h3>
+        <span class="stat-desc">Checklist field reviews</span>
+      </div>
+    </div>
+
+    <!-- Description & Project metadata layout -->
+    <div class="details-main-grid">
+      <!-- Left Column (Description, Blueprints, Inspections) -->
+      <div class="main-column-left">
+        <!-- Overview Description Card -->
+        <div class="detail-card info-card">
+          <h5>Project Specification Overview</h5>
+          <p class="description-text">{{ project.description }}</p>
+          <div class="meta-dates-grid">
+            <div class="date-item">
+              <span class="date-label">Start Date</span>
+              <span class="date-val font-semibold">{{ project.startDate }}</span>
+            </div>
+            <div class="date-item">
+              <span class="date-label">Planned Completion</span>
+              <span class="date-val font-semibold">{{ project.endDate }}</span>
+            </div>
+            <div class="date-item">
+              <span class="date-label">Site Superintendent</span>
+              <span class="date-val font-semibold">{{ project.assignedEngineer }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Blueprints List Card -->
+        <div class="detail-card blueprints-card">
+          <div class="card-header-row">
+            <h5>Attached CAD & Architectural Blueprints</h5>
+            <button class="header-action-btn" routerLink="/blueprints">Blueprint Center</button>
+          </div>
+          
+          <div class="blueprints-list" *ngIf="blueprints.length > 0; else emptyBlueprints">
+            <div class="blueprint-item" *ngFor="let bp of blueprints">
+              <div class="bp-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+              </div>
+              <div class="bp-details">
+                <span class="bp-name font-bold">{{ bp.name }}</span>
+                <span class="bp-meta">Version {{ bp.version }} | Last Updated {{ bp.lastUpdated }}</span>
+              </div>
+              <div class="bp-actions">
+                <button class="action-icon-btn" [routerLink]="['/blueprints']" [queryParams]="{blueprintId: bp.id}" title="Open PDF Blueprint Viewer">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+          <ng-template #emptyBlueprints>
+            <div class="empty-detail-state">No blueprints attached.</div>
+          </ng-template>
+        </div>
+
+        <!-- Inspections History Card -->
+        <div class="detail-card inspections-card">
+          <div class="card-header-row">
+            <h5>Safety Inspection Logs & History</h5>
+            <button class="header-action-btn" routerLink="/inspections">Schedule Inspection</button>
+          </div>
+          
+          <div class="table-responsive" *ngIf="inspections.length > 0; else emptyInspections">
+            <table class="detail-data-table" aria-label="Detailed safety inspection logs and history including audit type, date, auditor, status, and rating">
+              <thead>
+                <tr>
+                  <th>Audit Type</th>
+                  <th>Date</th>
+                  <th>Auditor</th>
+                  <th>Compliance Status</th>
+                  <th class="text-right">Safety Rating</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let insp of inspections" [routerLink]="['/inspections']">
+                  <td><span class="font-bold">{{ insp.type }}</span></td>
+                  <td class="font-mono text-xs">{{ insp.date }}</td>
+                  <td>{{ insp.assignedInspector }}</td>
+                  <td>
+                    <span class="status-pill-badge" [ngClass]="getBadgeClass(insp.status)">
+                      {{ insp.status }}
+                    </span>
+                  </td>
+                  <td class="text-right font-bold">{{ insp.score }}%</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <ng-template #emptyInspections>
+            <div class="empty-detail-state">No safety audits completed yet.</div>
+          </ng-template>
+        </div>
+      </div>
+
+      <!-- Right Column (AI Alerts & Materials Summary) -->
+      <div class="main-column-right">
+        <!-- Active AI safety alerts related to this project -->
+        <div class="detail-card alerts-card">
+          <h5>Active AI Compliance Feed</h5>
+          
+          <div class="alerts-stack" *ngIf="safetyAlerts.length > 0; else emptyAlerts">
+            <div class="project-alert-item" *ngFor="let alert of safetyAlerts" [ngClass]="alert.severity" [routerLink]="['/safety']">
+              <div class="alert-top">
+                <span class="severity-pill" [ngClass]="alert.severity">{{ alert.severity | uppercase }}</span>
+                <span class="alert-status font-bold" [ngClass]="alert.status">{{ alert.status }}</span>
+              </div>
+              <h6 class="alert-title">{{ alert.title }}</h6>
+              <p class="alert-desc">{{ alert.description }}</p>
+              <span class="alert-time">{{ alert.timestamp | date:'shortTime' }}</span>
+            </div>
+          </div>
+          <ng-template #emptyAlerts>
+            <div class="compliance-success-box">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><polyline points="9 11 11 13 15 9"></polyline></svg>
+              <div class="box-info">
+                <span>Site Safety Confirmed</span>
+                <p>No active AI safety warnings for this project site.</p>
+              </div>
+            </div>
+          </ng-template>
+        </div>
+
+        <!-- Materials & Workers Summary -->
+        <div class="detail-card resources-card">
+          <h5>Site Logistics & Resources</h5>
+          <div class="logistics-list">
+            <div class="logistics-item">
+              <span class="logistics-label">Key Materials</span>
+              <p class="logistics-val">Reinforced High-Tension Concrete, ASTM Structural Steel Girders, Fiber Facades.</p>
+            </div>
+            <div class="logistics-item">
+              <span class="logistics-label">Safety Equips</span>
+              <p class="logistics-val">Perimeter nets, Anchor harness points, GFCI sub-stations, Wearable IoT beacons.</p>
+            </div>
+            <div class="logistics-item">
+              <span class="logistics-label">Daily Update Log</span>
+              <ul class="bullet-list">
+                <li *ngFor="let upd of project.recentUpdates.slice(0, 3)">{{ upd }}</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

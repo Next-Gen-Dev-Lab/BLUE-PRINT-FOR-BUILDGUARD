@@ -1,0 +1,134 @@
+<div class="crud-container animate-fade-in">
+  <!-- Title and Actions Header -->
+  <div class="crud-header">
+    <div class="header-left">
+      <h2>AI Safety Compliance Review Engine</h2>
+      <p>Analyze construction sites, active inspections, and blueprints using advanced safety analytics.</p>
+    </div>
+  </div>
+
+  <!-- Main AI Grid -->
+  <div class="ai-review-grid">
+    <!-- Left Form Configurations -->
+    <div class="ai-config-card">
+      <div class="card-header">
+        <h3>Analysis Configuration</h3>
+      </div>
+      <div class="card-body">
+        <div class="form-group">
+          <label for="projectId">Select Project Site *</label>
+          <select id="projectId" [(ngModel)]="selectedProjectId" (change)="onProjectChange()" class="ai-input">
+            <option *ngFor="let proj of projects" [value]="proj.id">{{ proj.name }}</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="inspectionId">Related Inspection Audit (Optional)</label>
+          <select id="inspectionId" [(ngModel)]="selectedInspectionId" class="ai-input">
+            <option value="">No Inspection Link (Global Project Audit)</option>
+            <option *ngFor="let insp of filteredInspections" [value]="insp.id">{{ insp.type }} ({{ insp.date }})</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="customPrompt">Focus Scope / Custom Prompt Notes</label>
+          <textarea id="customPrompt" 
+                    [(ngModel)]="customPrompt" 
+                    rows="5" 
+                    placeholder="e.g. Focus on fall protection scaffolding, electrical compliance in staging areas, or subcontractor PPE..." 
+                    class="ai-textarea"></textarea>
+        </div>
+
+        <button class="primary-btn ai-generate-btn" 
+                (click)="generateAiReview()" 
+                [disabled]="isGenerating || isLoadingData">
+          <svg *ngIf="!isGenerating" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+          <span *ngIf="!isGenerating">Generate AI Safety Review</span>
+          
+          <div class="inline-spinner" *ngIf="isGenerating"></div>
+          <span *ngIf="isGenerating">Engaging Safety Engine...</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Right Side Results Display -->
+    <div class="ai-results-pane">
+      
+      <!-- LOADING STATE ANIMATION -->
+      <div class="ai-loading-card" *ngIf="isGenerating">
+        <div class="pulse-orbit-spinner">
+          <div class="orbit ring-1"></div>
+          <div class="orbit ring-2"></div>
+          <div class="orbit ring-3"></div>
+          <div class="sparkle"></div>
+        </div>
+        <h4>Generating Safety Review</h4>
+        <p class="loading-step-text">{{ loadingMessages[generationStep] }}</p>
+        <div class="loading-progress-bar">
+          <div class="progress-fill" [style.width.%]="(generationStep + 1) * 20"></div>
+        </div>
+      </div>
+
+      <!-- RESULTS PANEL -->
+      <div class="ai-results-panel animate-fade-in" *ngIf="reviewGenerated && !isGenerating">
+        <!-- Results Header Index -->
+        <div class="results-header-summary">
+          <div class="safety-score-meter">
+            <span class="score-num" [ngClass]="{'good': safetyScore >= 85, 'average': safetyScore >= 70 && safetyScore < 85, 'bad': safetyScore < 70}">
+              {{ safetyScore }}
+            </span>
+            <div class="score-meta">
+              <span class="score-label">AI Safety Compliance Index</span>
+              <span class="score-max">Score rating (out of 100)</span>
+            </div>
+          </div>
+
+          <div class="risk-assessment-card" [ngClass]="{'low': safetyScore >= 90, 'medium': safetyScore >= 75 && safetyScore < 90, 'high': safetyScore < 75}">
+            <h4>Risk Evaluation</h4>
+            <p>{{ riskEvaluation }}</p>
+          </div>
+        </div>
+
+        <!-- Recommendations Title -->
+        <h3 class="section-title">Formulated Action Recommendations</h3>
+
+        <!-- Recommendation Cards List -->
+        <div class="recommendations-list">
+          <div class="recommendation-card" *ngFor="let rec of recommendations">
+            <div class="rec-card-header">
+              <div class="badges-row">
+                <span class="rec-badge category">{{ rec.category }}</span>
+                <span class="rec-badge severity" [ngClass]="rec.severity">{{ rec.severity | uppercase }}</span>
+              </div>
+              <h4>{{ rec.title }}</h4>
+            </div>
+            
+            <div class="rec-card-body">
+              <p class="rec-desc">{{ rec.description }}</p>
+              
+              <div class="remedy-checklist">
+                <h5>Suggested Corrective Remediation Action Steps:</h5>
+                <ul>
+                  <li *ngFor="let step of rec.remedySteps">
+                    <div class="checkbox-placeholder">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    </div>
+                    <span>{{ step }}</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- EMPTY STATE (NO REVIEWS YET) -->
+      <div class="ai-empty-card" *ngIf="!isGenerating && !reviewGenerated">
+        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+        <h4>Safety Compliance Review Awaiting Execution</h4>
+        <p>Select a project site and configure audit parameters, then click the execute button to generate compliance assessments.</p>
+      </div>
+
+    </div>
+  </div>
+</div>

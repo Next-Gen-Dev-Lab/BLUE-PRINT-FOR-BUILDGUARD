@@ -1,0 +1,167 @@
+/* ==========================================
+   Notifications Feed List
+   ========================================== */
+.notifications-list-body {
+  padding: 12px;
+}
+
+.notifications-feed-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.feed-item-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  background: var(--card-bg, #ffffff);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  transition: all 0.2s ease;
+}
+
+.feed-item-card:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-soft);
+  border-color: var(--primary-blue);
+}
+
+.feed-item-card.unread {
+  background: #f8fafc;
+  border-left: 4px solid var(--primary-blue);
+  padding-left: 16px;
+}
+
+.feed-item-left {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  flex-grow: 1;
+}
+
+.feed-category-badge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+/* Badge colors */
+.feed-category-badge.safety {
+  background: var(--danger-bg);
+  color: var(--danger-red);
+}
+
+.feed-category-badge.project {
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.feed-category-badge.inspection {
+  background: #fffbeb;
+  color: #d97706;
+}
+
+.feed-category-badge.approval {
+  background: #f0fdf4;
+  color: #16a34a;
+}
+
+.feed-message {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.feed-message h4 {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.feed-text {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.feed-meta {
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+
+/* Check actions */
+.feed-item-right {
+  display: flex;
+  align-items: center;
+  margin-left: 16px;
+}
+
+.mark-read-circle-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid var(--border-color);
+  background: var(--card-bg);
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.mark-read-circle-btn:hover {
+  background: var(--primary-blue);
+  border-color: var(--primary-blue);
+  color: white;
+  transform: scale(1.05);
+}
+
+.read-check-icon {
+  color: var(--success-green);
+  opacity: 0.75;
+}
+
+.empty-state-container.padding-large {
+  padding: 80px 40px;
+}
+
+/* ==========================================
+   Dark Theme Overrides
+   ========================================== */
+:host-context(.dark-theme) .feed-item-card {
+  background: var(--card-bg, #1e293b);
+  border-color: var(--border-color, #334155);
+}
+
+:host-context(.dark-theme) .feed-item-card:hover {
+  border-color: var(--primary-blue);
+  background: #233044;
+}
+
+:host-context(.dark-theme) .feed-item-card.unread {
+  background: #182235;
+  border-left-color: var(--primary-blue);
+}
+
+:host-context(.dark-theme) .mark-read-circle-btn {
+  border-color: #334155;
+  background: #1e293b;
+  color: #cbd5e1;
+}
+
+:host-context(.dark-theme) .mark-read-circle-btn:hover {
+  background: var(--primary-blue);
+  border-color: var(--primary-blue);
+  color: white;
+}

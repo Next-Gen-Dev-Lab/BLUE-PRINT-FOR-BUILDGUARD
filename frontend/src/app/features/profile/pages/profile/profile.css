@@ -1,0 +1,322 @@
+.profile-viewport {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+}
+
+.profile-header-row h2 {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--text-primary, #0f172a);
+  margin: 0 0 6px 0;
+}
+
+.profile-header-row p {
+  font-size: 14px;
+  color: var(--text-secondary, #64748b);
+  margin: 0;
+}
+
+.profile-main-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+@media (max-width: 991px) {
+  .profile-main-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.profile-card {
+  background-color: var(--card-bg, #ffffff);
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: 16px;
+  padding: 30px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.03);
+}
+
+.profile-avatar-row {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  border-bottom: 1px solid var(--border-color, #f1f5f9);
+  padding-bottom: 24px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.large-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #2563eb, #60a5fa);
+  color: #ffffff;
+  font-size: 24px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 14px rgba(37, 99, 235, 0.2);
+}
+
+.avatar-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex-grow: 1;
+}
+
+.avatar-meta h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text-primary, #0f172a);
+}
+
+.role-pill {
+  font-size: 10px;
+  font-weight: 800;
+  color: #ea580c;
+  background-color: #fff7ed;
+  padding: 2px 8px;
+  border-radius: 6px;
+  width: max-content;
+}
+
+.company-text {
+  font-size: 12px;
+  color: var(--text-secondary, #64748b);
+}
+
+.edit-btn {
+  background-color: transparent;
+  border: 1px solid var(--border-color, #cbd5e1);
+  color: var(--text-primary, #475569);
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 700;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.edit-btn:hover {
+  background-color: var(--bg-light, #f8fafc);
+  border-color: var(--text-secondary, #94a3b8);
+}
+
+/* Forms input structure */
+.profile-form, .password-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+@media (max-width: 576px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-group label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-secondary, #475569);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.input-wrapper input {
+  width: 100%;
+  height: 38px;
+  background-color: var(--bg-light, #f8fafc);
+  border: 1px solid var(--border-color, #cbd5e1);
+  border-radius: 8px;
+  padding: 0 12px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary, #1e293b);
+  outline: none;
+  transition: all 0.2s;
+  box-sizing: border-box;
+}
+
+.input-wrapper input:focus {
+  border-color: #2563eb;
+  background-color: var(--card-bg, #ffffff);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+.readonly-field {
+  background-color: var(--bg-light, #f1f5f9) !important;
+  color: var(--text-secondary, #64748b) !important;
+  border-color: var(--border-color, #cbd5e1) !important;
+  cursor: not-allowed;
+}
+
+.validation-message {
+  font-size: 11px;
+  color: #ef4444;
+  font-weight: 600;
+}
+
+.save-profile-btn, .save-password-btn {
+  background-color: #2563eb;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  height: 38px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.save-profile-btn:hover, .save-password-btn:hover {
+  background-color: #1d4ed8;
+}
+
+.save-profile-btn[disabled], .save-password-btn[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Password Form details card */
+.password-card h5 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary, #0f172a);
+}
+
+.section-desc {
+  font-size: 12px;
+  color: var(--text-secondary, #64748b);
+  margin: 4px 0 18px 0;
+}
+
+.password-card input {
+  width: 100%;
+  height: 38px;
+  background-color: var(--bg-light, #f8fafc);
+  border: 1px solid var(--border-color, #cbd5e1);
+  border-radius: 8px;
+  padding: 0 12px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary, #1e293b);
+  outline: none;
+  transition: all 0.2s;
+  box-sizing: border-box;
+}
+
+.password-card input:focus {
+  border-color: #2563eb;
+  background-color: var(--card-bg, #ffffff);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+.password-card .input-wrapper.has-error input {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+}
+
+.font-bold { font-weight: 700; }
+.font-mono { font-family: monospace; }
+
+/* Dark theme overrides */
+:host-context(.dark-theme) .profile-header-row h2 {
+  color: #f8fafc;
+}
+
+:host-context(.dark-theme) .profile-header-row p {
+  color: #94a3b8;
+}
+
+:host-context(.dark-theme) .profile-card {
+  background-color: #1e293b;
+  border-color: #334155;
+}
+
+:host-context(.dark-theme) .profile-avatar-row {
+  border-bottom-color: #334155;
+}
+
+:host-context(.dark-theme) .avatar-meta h3 {
+  color: #f8fafc;
+}
+
+:host-context(.dark-theme) .role-pill {
+  color: #fb923c;
+  background-color: rgba(249, 115, 22, 0.15);
+}
+
+:host-context(.dark-theme) .company-text {
+  color: #cbd5e1;
+}
+
+:host-context(.dark-theme) .edit-btn {
+  border-color: #cbd5e1;
+  color: #cbd5e1;
+}
+
+:host-context(.dark-theme) .edit-btn:hover {
+  background-color: #0f172a;
+}
+
+:host-context(.dark-theme) .form-group label {
+  color: #cbd5e1;
+}
+
+:host-context(.dark-theme) .input-wrapper input, :host-context(.dark-theme) .password-card input {
+  background-color: #0f172a;
+  border-color: #334155;
+  color: #f8fafc;
+}
+
+:host-context(.dark-theme) .input-wrapper input:focus, :host-context(.dark-theme) .password-card input:focus {
+  border-color: #3b82f6;
+  background-color: #0f172a;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+:host-context(.dark-theme) .readonly-field {
+  background-color: #1e293b !important;
+  color: #64748b !important;
+}
+
+:host-context(.dark-theme) .save-profile-btn, :host-context(.dark-theme) .save-password-btn {
+  background-color: #3b82f6;
+}
+
+:host-context(.dark-theme) .save-profile-btn:hover, :host-context(.dark-theme) .save-password-btn:hover {
+  background-color: #2563eb;
+}
+
+:host-context(.dark-theme) .password-card h5 {
+  color: #f8fafc;
+}
+
+:host-context(.dark-theme) .section-desc {
+  color: #94a3b8;
+}

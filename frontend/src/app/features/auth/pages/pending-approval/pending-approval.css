@@ -1,0 +1,122 @@
+@import '../login/login.css';
+
+.status-badge-row {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.status-pill-badge {
+  display: inline-block;
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 700;
+  border-radius: 9999px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.status-pill-badge.pending {
+  background-color: #fef3c7;
+  color: #b45309;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.account-details-card {
+  background-color: rgba(15, 23, 42, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+.account-details-card h5 {
+  margin: 0 0 12px 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  font-size: 13px;
+}
+
+.detail-row:last-child {
+  border-bottom: none;
+}
+
+.detail-label {
+  color: #64748b;
+  font-weight: 500;
+}
+
+.detail-val {
+  color: #cbd5e1;
+  font-weight: 600;
+  text-align: right;
+}
+
+.font-mono {
+  font-family: monospace;
+}
+
+.contact-support-block {
+  display: flex;
+  gap: 12px;
+  background-color: #f0f9ff;
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 24px;
+  color: #0369a1;
+}
+
+.contact-support-block svg {
+  flex-shrink: 0;
+  color: #38bdf8;
+  margin-top: 2px;
+}
+
+.support-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.support-info span {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.support-info p {
+  font-size: 12px;
+  margin: 0;
+  line-height: 1.4;
+  color: #94a3b8;
+}
+
+.support-info p a {
+  color: #38bdf8;
+  text-decoration: underline;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.text-center p {
+  color: #94a3b8;
+  font-size: 13px;
+  line-height: 1.5;
+  margin-top: 8px;
+}
+
+.w-full {
+  width: 100%;
+}

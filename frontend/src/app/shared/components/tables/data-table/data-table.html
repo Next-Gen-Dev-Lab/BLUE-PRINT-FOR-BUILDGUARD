@@ -1,0 +1,80 @@
+<div class="table-responsive-container">
+  <table class="bg-data-table" aria-label="Dynamic data table component with sortable columns and action buttons">
+    <thead>
+      <tr>
+        <th *ngFor="let col of columns" 
+            [ngClass]="{'sortable-th': col.sortable}"
+            (click)="onHeaderClick(col)"
+            [attr.tabindex]="col.sortable ? 0 : null"
+            (keydown.enter)="onHeaderClick(col)"
+            (keydown.space)="onHeaderClick(col); $event.preventDefault()">
+          <div class="th-content">
+            <span>{{ col.label }}</span>
+            <span class="sort-icon" *ngIf="col.sortable && sortKey === col.key">
+              <svg *ngIf="sortDirection === 'asc'" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
+              <svg *ngIf="sortDirection === 'desc'" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg>
+            </span>
+          </div>
+        </th>
+        <th *ngIf="actionsEnabled" class="actions-header">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let row of sortedData" (click)="onRowClick(row)" class="table-row" tabindex="0" (keydown.enter)="onRowClick(row)" (keydown.space)="onRowClick(row); $event.preventDefault()">
+        <td *ngFor="let col of columns">
+          <!-- Text Type -->
+          <span *ngIf="col.type === 'text' || !col.type" class="cell-text">
+            {{ row[col.key] }}
+          </span>
+
+          <!-- Date Type -->
+          <span *ngIf="col.type === 'date'" class="cell-text font-mono">
+            {{ row[col.key] }}
+          </span>
+
+          <!-- Progress Bar Type -->
+          <div *ngIf="col.type === 'progress'" class="cell-progress">
+            <span class="progress-val">{{ row[col.key] }}%</span>
+            <div class="progress-bar-bg">
+              <div class="progress-bar-fill" [style.width.%]="row[col.key]"></div>
+            </div>
+          </div>
+
+          <!-- Badge Status Type -->
+          <span *ngIf="col.type === 'badge'" 
+                class="status-pill" 
+                [ngClass]="getBadgeClass(row[col.key])">
+            {{ row[col.key] }}
+          </span>
+
+          <!-- Custom (Fallbacks) -->
+          <span *ngIf="col.type === 'custom'" class="cell-text font-semibold">
+            {{ row[col.key] }}
+          </span>
+        </td>
+        
+        <!-- Actions Buttons -->
+        <td *ngIf="actionsEnabled" class="actions-cell">
+          <div class="actions-group">
+            <button class="action-icon-btn btn-view" (click)="onAction('view', row, $event)" title="View Details">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+            </button>
+            <button class="action-icon-btn btn-edit" (click)="onAction('edit', row, $event)" title="Edit">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+            </button>
+          </div>
+        </td>
+      </tr>
+      
+      <!-- Empty State inside Table -->
+      <tr *ngIf="sortedData.length === 0">
+        <td [attr.colspan]="columns.length + (actionsEnabled ? 1 : 0)" class="table-empty-td">
+          <div class="table-empty-wrapper">
+            <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="9" y1="9" x2="15" y2="9"></line><line x1="9" y1="13" x2="15" y2="13"></line><line x1="9" y1="17" x2="13" y2="17"></line></svg>
+            <span>No data available in this report view</span>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

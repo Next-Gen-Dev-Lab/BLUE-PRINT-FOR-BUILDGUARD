@@ -1,0 +1,221 @@
+<div class="safety-viewport">
+  <!-- Page Header -->
+  <div class="safety-header-row">
+    <h2>AI Safety Compliance Desk</h2>
+    <p>Monitor real-time visual safety sensor warning logs, check site index scores, and sign-off resolved hazards.</p>
+  </div>
+
+  <!-- Loading State -->
+  <app-loading-spinner *ngIf="isLoading" message="Polling safety sensors..."></app-loading-spinner>
+
+  <div *ngIf="!isLoading" class="safety-content">
+    
+    <!-- Top Gauges Strip -->
+    <div class="safety-stats-strip">
+      <!-- Circular Gauge Compliance Card -->
+      <div class="stat-gauge-card">
+        <div class="gauge-svg-wrapper">
+          <svg width="140" height="140" viewBox="0 0 140 140">
+            <circle cx="70" cy="70" [attr.r]="gaugeRadius" fill="transparent" stroke="#f1f5f9" stroke-width="10"></circle>
+            <circle cx="70" cy="70" [attr.r]="gaugeRadius" 
+                    fill="transparent" 
+                    stroke="url(#safetyGaugeGrad)" 
+                    stroke-width="10" 
+                    stroke-linecap="round"
+                    [attr.stroke-dasharray]="gaugeCircumference"
+                    [attr.stroke-dashoffset]="gaugeOffset"
+                    transform="rotate(-90 70 70)"
+                    class="gauge-progress"></circle>
+            <defs>
+              <linearGradient id="safetyGaugeGrad" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#ef4444"/>
+                <stop offset="50%" stop-color="#f97316"/>
+                <stop offset="100%" stop-color="#10b981"/>
+              </linearGradient>
+            </defs>
+          </svg>
+          <div class="gauge-center-text">
+            <h3>{{ complianceScore }}%</h3>
+            <span>INDEX</span>
+          </div>
+        </div>
+        <div class="gauge-info">
+          <h5>Platform Safety Rating</h5>
+          <p>Index score calculated dynamically based on unresolved Class A/B violations.</p>
+        </div>
+      </div>
+
+      <!-- General Counters -->
+      <div class="counter-card red">
+        <span class="count-lbl">Active Site Hazards</span>
+        <h3>{{ openAlertsCount }}</h3>
+        <span class="count-desc">Requiring field remediation</span>
+      </div>
+
+      <div class="counter-card green">
+        <span class="count-lbl">Resolved Violations</span>
+        <h3>{{ resolvedAlertsCount }}</h3>
+        <span class="count-desc">Signed-off safety closures</span>
+      </div>
+    </div>
+
+    <!-- Filters controls -->
+    <div class="safety-controls-bar">
+      <h5>Compliance Filter Desk</h5>
+      <div class="controls-inputs">
+        <label for="safetyCategoryFilter" class="sr-only">Filter by Category</label>
+        <select id="safetyCategoryFilter" [(ngModel)]="categoryFilter" (change)="applyFilters()" class="control-select">
+          <option value="">All Categories</option>
+          <option value="Fall Hazard">Fall Hazard</option>
+          <option value="PPE">PPE Equipment</option>
+          <option value="Scaffolding">Scaffolding Alignment</option>
+          <option value="Electrical">Electrical Power</option>
+          <option value="General">General Site Safety</option>
+        </select>
+
+        <label for="safetySeverityFilter" class="sr-only">Filter by Severity</label>
+        <select id="safetySeverityFilter" [(ngModel)]="severityFilter" (change)="applyFilters()" class="control-select">
+          <option value="">All Severities</option>
+          <option value="critical">CRITICAL Only</option>
+          <option value="high">HIGH Severity</option>
+          <option value="medium">MEDIUM Severity</option>
+          <option value="low">LOW Severity</option>
+        </select>
+
+        <button *ngIf="categoryFilter || severityFilter" 
+                (click)="categoryFilter = ''; severityFilter = ''; applyFilters()" 
+                class="clear-filters-btn">
+          Reset Filters
+        </button>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <app-empty-state *ngIf="filteredAlerts.length === 0"
+                     title="No compliance alerts matches"
+                     description="No safety records found matching your category/severity search criteria."
+                     (actionClick)="categoryFilter = ''; severityFilter = ''; applyFilters()"
+                     actionText="Clear Filters"
+                     iconType="alert"></app-empty-state>
+
+    <!-- Splits Grid: Open Hazards vs Resolved Archive -->
+    <div class="safety-grid-layout" *ngIf="filteredAlerts.length > 0">
+      
+      <!-- Left Split: Active Open Hazards -->
+      <div class="safety-col open-col">
+        <div class="col-title-row">
+          <h4>Active Safety Warning Feeds</h4>
+          <span class="col-badge font-bold">{{ (filteredAlerts | filterOpenAlerts).length }}</span>
+        </div>
+
+        <div class="alerts-stack" *ngIf="(filteredAlerts | filterOpenAlerts).length > 0; else emptyOpen">
+          <div class="alert-card" 
+               *ngFor="let alert of filteredAlerts | filterOpenAlerts"
+               [ngClass]="alert.severity">
+            <div class="alert-card-header">
+              <span class="severity-pill" [ngClass]="getSeverityClass(alert.severity)">
+                {{ alert.severity | uppercase }}
+              </span>
+              <span class="alert-project-name font-bold">{{ alert.projectName }}</span>
+            </div>
+            
+            <h5 class="alert-card-title">{{ alert.title }}</h5>
+            <p class="alert-card-desc">{{ alert.description }}</p>
+            
+            <!-- Suggested remediation steps checklist -->
+            <div class="alert-remediations">
+              <span class="remediation-lbl">Suggested Remediations:</span>
+              <ul class="remediation-list">
+                <li *ngFor="let step of alert.suggestedActions">{{ step }}</li>
+              </ul>
+            </div>
+
+            <!-- Comments thread -->
+            <div class="alert-comments-feed" *ngIf="alert.comments.length > 0">
+              <span class="comments-lbl">Activity Logs:</span>
+              <div class="comments-list">
+                <span class="comment-row" *ngFor="let com of alert.comments">{{ com }}</span>
+              </div>
+            </div>
+
+            <div class="alert-card-footer">
+              <span class="alert-date font-mono">{{ alert.timestamp | date:'short' }}</span>
+              <button class="resolve-btn" (click)="openResolveModal(alert)">Resolve Hazard</button>
+            </div>
+          </div>
+        </div>
+        <ng-template #emptyOpen>
+          <div class="column-empty-state">No active safety warnings. compliance cleared.</div>
+        </ng-template>
+      </div>
+
+      <!-- Right Split: Resolved Hazards logs -->
+      <div class="safety-col resolved-col">
+        <div class="col-title-row">
+          <h4>Remediation Resolved Archive</h4>
+          <span class="col-badge font-bold bg-green">{{ (filteredAlerts | filterResolvedAlerts).length }}</span>
+        </div>
+
+        <div class="alerts-stack" *ngIf="(filteredAlerts | filterResolvedAlerts).length > 0; else emptyResolved">
+          <div class="alert-card resolved-item" 
+               *ngFor="let alert of filteredAlerts | filterResolvedAlerts">
+            <div class="alert-card-header">
+              <span class="status-pill resolved">RESOLVED</span>
+              <span class="alert-project-name font-mono text-xs">{{ alert.timestamp | date:'shortDate' }}</span>
+            </div>
+            
+            <h5 class="alert-card-title">{{ alert.title }}</h5>
+            <span class="alert-project-name inline-proj">{{ alert.projectName }}</span>
+            
+            <div class="alert-comments-feed" *ngIf="alert.comments.length > 0">
+              <span class="comments-lbl">Remediation Logs:</span>
+              <div class="comments-list">
+                <span class="comment-row" *ngFor="let com of alert.comments">{{ com }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <ng-template #emptyResolved>
+          <div class="column-empty-state">No signed-off resolutions recorded.</div>
+        </ng-template>
+      </div>
+    </div>
+  </div>
+
+  <!-- Resolution overlay comments dialog modal -->
+  <div class="modal-backdrop" *ngIf="selectedAlert" (click)="closeResolveModal()" (keydown.escape)="closeResolveModal()">
+    <div class="resolution-modal" (click)="$event.stopPropagation()" (keydown)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Sign-off Hazard Remediation</h3>
+        <button class="close-modal-btn" (click)="closeResolveModal()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+      
+      <div class="modal-body">
+        <div class="modal-alert-preview">
+          <span class="preview-proj font-bold">{{ selectedAlert.projectName }}</span>
+          <h5 class="preview-title">{{ selectedAlert.title }}</h5>
+          <p class="preview-desc">{{ selectedAlert.description }}</p>
+        </div>
+
+        <div class="resolution-input-form">
+          <label for="resComment">Remediation Action Remarks</label>
+          <textarea id="resComment" 
+                    [(ngModel)]="resolutionComment" 
+                    placeholder="Describe how the hazard was resolved (e.g. Netting reinstalled on Level 42 north, verified by supervisor Marcus Wright)..." 
+                    rows="4" 
+                    class="res-textarea"></textarea>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeResolveModal()">Cancel</button>
+        <button class="btn btn-primary" (click)="submitResolution()" [disabled]="!resolutionComment.trim() || isResolving">
+          <span *ngIf="!isResolving">Confirm Resolve Sign-Off</span>
+          <app-loading-spinner *ngIf="isResolving" size="sm" color="white"></app-loading-spinner>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

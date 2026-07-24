@@ -1,0 +1,62 @@
+/* ==========================================
+   Email Center Layout styling
+   ========================================== */
+.email-dispatch-card {
+  max-width: 680px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.input-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.input-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-secondary);
+  pointer-events: none;
+}
+
+.input-wrapper input {
+  width: 100%;
+  padding: 10px 16px 10px 42px !important;
+  box-sizing: border-box;
+}
+
+.form-group textarea {
+  width: 100%;
+  padding: 12px 14px;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 160px;
+  box-sizing: border-box;
+}
+
+.email-footer-actions {
+  padding: 16px 20px;
+  border-top: 1px solid var(--border-color);
+  background: var(--bg-primary);
+  display: flex;
+  justify-content: flex-end;
+}
+
+.dispatch-btn {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+}
+
+/* ==========================================
+   Dark Theme
+   ========================================== */
+:host-context(.dark-theme) .email-dispatch-card {
+  background: var(--card-bg, #1e293b);
+  border-color: var(--border-color, #334155);
+}
+
+:host-context(.dark-theme) .email-footer-actions {
+  background: #0f172a;
+  border-top-color: #334155;
+}

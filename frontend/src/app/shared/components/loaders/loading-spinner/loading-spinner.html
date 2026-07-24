@@ -1,0 +1,6 @@
+<div [ngClass]="{'overlay-container': overlay, 'inline-container': !overlay}">
+  <div class="spinner-wrapper">
+    <div class="spinner" [ngClass]="[size, color]"></div>
+    <div *ngIf="message" class="spinner-message">{{ message }}</div>
+  </div>
+</div>

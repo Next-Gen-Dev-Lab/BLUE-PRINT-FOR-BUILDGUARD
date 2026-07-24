@@ -1,0 +1,64 @@
+<div class="crud-container animate-fade-in">
+  <!-- Title and Actions Header -->
+  <div class="crud-header">
+    <div class="header-left">
+      <h2>Safety Notice Dispatcher</h2>
+      <p>Send instant safety alerts, audit checklists, or blueprints directly to site inspectors and contractors.</p>
+    </div>
+  </div>
+
+  <!-- Email Panel Card -->
+  <div class="crud-card email-dispatch-card">
+    <div class="card-header">
+      <h3>Compose Safety Alert Notice</h3>
+    </div>
+
+    <form [formGroup]="emailForm" (ngSubmit)="sendEmail()">
+      <div class="card-body">
+        <!-- Recipient Email -->
+        <div class="form-group" [ngClass]="{'has-error': emailForm.get('recipient')?.touched && emailForm.get('recipient')?.invalid}">
+          <label for="recipient">Recipient Email Address *</label>
+          <div class="input-wrapper">
+            <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+            <input type="email" id="recipient" formControlName="recipient" placeholder="inspector@apexbuilders.com">
+          </div>
+          <span class="validation-message" *ngIf="emailForm.get('recipient')?.touched && emailForm.get('recipient')?.invalid">
+            Please input a valid recipient email.
+          </span>
+        </div>
+
+        <!-- Subject Line -->
+        <div class="form-group" [ngClass]="{'has-error': emailForm.get('subject')?.touched && emailForm.get('subject')?.invalid}">
+          <label for="subject">Email Subject Title *</label>
+          <div class="input-wrapper">
+            <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"></path></svg>
+            <input type="text" id="subject" formControlName="subject" placeholder="e.g. Critical Safety Alert - Unsecured edge Level 42">
+          </div>
+          <span class="validation-message" *ngIf="emailForm.get('subject')?.touched && emailForm.get('subject')?.invalid">
+            Subject is required (min 4 characters).
+          </span>
+        </div>
+
+        <!-- Message Body -->
+        <div class="form-group" [ngClass]="{'has-error': emailForm.get('message')?.touched && emailForm.get('message')?.invalid}">
+          <label for="message">Detailed Message Content *</label>
+          <textarea id="message" formControlName="message" rows="8" placeholder="Type compliance issues, directives, or safety warnings here..."></textarea>
+          <span class="validation-message" *ngIf="emailForm.get('message')?.touched && emailForm.get('message')?.invalid">
+            Message details must be at least 10 characters long.
+          </span>
+        </div>
+      </div>
+
+      <!-- Action Footer -->
+      <div class="email-footer-actions">
+        <button type="submit" class="primary-btn dispatch-btn" [disabled]="isSending">
+          <svg *ngIf="!isSending" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+          <span *ngIf="!isSending">Dispatch Notice</span>
+          
+          <div class="inline-spinner" *ngIf="isSending"></div>
+          <span *ngIf="isSending">Dispatching Email Alert...</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

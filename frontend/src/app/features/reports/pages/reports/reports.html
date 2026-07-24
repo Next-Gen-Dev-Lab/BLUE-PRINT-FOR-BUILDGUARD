@@ -1,0 +1,219 @@
+<div class="reports-viewport">
+  <div class="reports-header-row no-print">
+    <h2>Operations & Safety Report Center</h2>
+    <p>Compile Daily, Weekly, and Monthly compliance logs for printing or PDF exports.</p>
+  </div>
+
+  <app-loading-spinner *ngIf="isLoading" message="Loading report configuration sheets..."></app-loading-spinner>
+
+  <div class="reports-main-layout" *ngIf="!isLoading">
+    
+    <!-- Left Column: Report Options Config Form -->
+    <div class="reports-config-card no-print">
+      <h5>Report Configurations</h5>
+      
+      <!-- Report Scope Types Tabs -->
+      <div class="config-tabs">
+        <button class="tab-btn" [ngClass]="{'active': reportType === 'daily'}" (click)="reportType = 'daily'; reportGenerated = false">Daily</button>
+        <button class="tab-btn" [ngClass]="{'active': reportType === 'weekly'}" (click)="reportType = 'weekly'; reportGenerated = false">Weekly</button>
+        <button class="tab-btn" [ngClass]="{'active': reportType === 'monthly'}" (click)="reportType = 'monthly'; reportGenerated = false">Monthly</button>
+        <button class="tab-btn" [ngClass]="{'active': reportType === 'progress'}" (click)="reportType = 'progress'; reportGenerated = false">Progress</button>
+        <button class="tab-btn" [ngClass]="{'active': reportType === 'safety'}" (click)="reportType = 'safety'; reportGenerated = false">Safety</button>
+        <button class="tab-btn" [ngClass]="{'active': reportType === 'compliance'}" (click)="reportType = 'compliance'; reportGenerated = false">Compliance</button>
+      </div>
+
+      <!-- Settings fields -->
+      <div class="config-form">
+        <div class="form-group">
+          <label for="reportProj">Target Project Site</label>
+          <select id="reportProj" [(ngModel)]="selectedProjectId" (change)="onProjectChange()" class="sidebar-select">
+            <option value="" disabled selected>Select project site...</option>
+            <option *ngFor="let proj of projects" [value]="proj.id">{{ proj.name }}</option>
+          </select>
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="startDate">Range Start Date</label>
+            <input type="date" id="startDate" [(ngModel)]="startDate" class="sidebar-input">
+          </div>
+          <div class="form-group">
+            <label for="endDate">Range End Date</label>
+            <input type="date" id="endDate" [(ngModel)]="endDate" class="sidebar-input">
+          </div>
+        </div>
+
+        <div class="form-checkbox-row">
+          <label class="custom-checkbox">
+            <input type="checkbox" [(ngModel)]="includeImages">
+            <span class="checkmark"></span>
+            <span class="checkbox-label">Include Site Evidence Photos</span>
+          </label>
+        </div>
+
+        <div class="form-checkbox-row">
+          <label class="custom-checkbox">
+            <input type="checkbox" [(ngModel)]="includeComments">
+            <span class="checkmark"></span>
+            <span class="checkbox-label">Include Inspector Remarks Threads</span>
+          </label>
+        </div>
+
+        <button class="compile-btn" (click)="generateReport()" [disabled]="!selectedProjectId || isGenerating">
+          <span *ngIf="!isGenerating">Compile Ledger Sheet</span>
+          <app-loading-spinner *ngIf="isGenerating" size="sm" color="white"></app-loading-spinner>
+        </button>
+      </div>
+    </div>
+
+    <!-- Right Column: Compiled Report Visual Preview Card -->
+    <div class="report-preview-column">
+      
+      <div class="preview-actions-bar no-print" *ngIf="reportGenerated">
+        <button class="action-btn btn-pdf" (click)="exportPDF()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+          Export PDF
+        </button>
+        <button class="action-btn btn-print" (click)="printReport()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+          Print Sheet
+        </button>
+      </div>
+
+      <div class="report-preview-sheet" *ngIf="reportGenerated" id="printableReport">
+        
+        <!-- Sheet Header -->
+        <div class="sheet-header">
+          <div class="sheet-logo">
+            <img src="assets/logo.jpg" alt="BuildGuard Logo" class="sheet-logo-img">
+            <span class="logo-text">Build<span class="orange-text">Guard</span></span>
+          </div>
+          <div class="sheet-meta font-mono text-right">
+            <span>REPORT #BG-{{ reportType | uppercase }}-{{ Math.floor(1000 + Math.random() * 9000) }}</span>
+            <span>Compiled: {{ reportData.generatedAt }}</span>
+          </div>
+        </div>
+
+        <div class="sheet-title-block">
+          <h2>{{ getReportTitle() }}</h2>
+          <h4>Site: {{ reportData.projectName }}</h4>
+          <span class="range-date font-mono">Telemetry Scope: {{ startDate }} to {{ endDate }}</span>
+        </div>
+
+        <!-- Progress Summary strip -->
+        <div class="sheet-telemetry-row">
+          <div class="tel-box">
+            <span class="tel-lbl">Safety Index Score</span>
+            <span class="tel-val index-val">{{ reportData.complianceScore }}%</span>
+          </div>
+          <div class="tel-box">
+            <span class="tel-lbl">Milestone Progress</span>
+            <span class="tel-val progress-val">{{ reportData.progressPercent }}%</span>
+          </div>
+          <div class="tel-box">
+            <span class="tel-lbl">Total Field Audits</span>
+            <span class="tel-val">{{ reportData.totalAudits }}</span>
+          </div>
+          <div class="tel-box">
+            <span class="tel-lbl">AI Sensor Alerts</span>
+            <span class="tel-val danger-val">{{ reportData.safetyAlertsFlagged }}</span>
+          </div>
+        </div>
+
+        <!-- Compiled Statistics details Table -->
+        <div class="sheet-section">
+          <h5>1. Operations Summary Statistics</h5>
+          <table class="sheet-table" aria-label="Operations summary statistics including metrics, count ratings, and compliance status">
+            <thead>
+              <tr>
+                <th>Scope Metric</th>
+                <th>Count Rating</th>
+                <th>Compliance Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Completed Safety Audits (Field Checks)</td>
+                <td>{{ reportData.totalAudits }} Audits</td>
+                <td class="font-bold text-success">{{ reportData.passedAudits }} Passed | {{ reportData.failedAudits }} Failed</td>
+              </tr>
+              <tr>
+                <td>AI Camera Flags (Safety Incidents)</td>
+                <td>{{ reportData.safetyAlertsFlagged }} Incidents</td>
+                <td class="font-bold text-danger">{{ reportData.activeAlerts.length }} Unresolved Class A/B</td>
+              </tr>
+              <tr>
+                <td>Signed-off Hazard Remediations</td>
+                <td>{{ reportData.safetyAlertsResolved }} Remediations</td>
+                <td class="font-bold text-success">100% Remediation Rate</td>
+              </tr>
+              <tr>
+                <td>Project Milestone Health</td>
+                <td>{{ reportData.progressPercent }}% Completion</td>
+                <td class="font-bold text-blue">On Track</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Open Hazards warning listings -->
+        <div class="sheet-section" *ngIf="reportData.activeAlerts.length > 0">
+          <h5>2. Active Unresolved Safety Hazards (Class A/B)</h5>
+          <div class="sheet-alerts-list">
+            <div class="sheet-alert-row" *ngFor="let alert of reportData.activeAlerts">
+              <div class="row-header">
+                <span class="font-bold">{{ alert.title }}</span>
+                <span class="badge-sev font-bold">{{ alert.severity | uppercase }}</span>
+              </div>
+              <p class="row-desc">{{ alert.description }}</p>
+              <div class="row-meta font-mono">Detected: {{ alert.timestamp | date:'short' }}</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Inspections list -->
+        <div class="sheet-section" *ngIf="reportData.recentInspections.length > 0">
+          <h5>3. Field Inspections Completed</h5>
+          <table class="sheet-table" aria-label="Field inspections completed listing audit scope, auditor, status, and rating score">
+            <thead>
+              <tr>
+                <th>Audit Scope</th>
+                <th>Auditor</th>
+                <th>Status</th>
+                <th class="text-right">Rating Score</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let insp of reportData.recentInspections">
+                <td><span class="font-bold">{{ insp.type }}</span></td>
+                <td>{{ insp.assignedInspector }}</td>
+                <td class="font-semibold">{{ insp.status | uppercase }}</td>
+                <td class="text-right font-bold">{{ insp.score }}%</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Sign-Off signatures block -->
+        <div class="sheet-signature-block">
+          <div class="sig-col">
+            <div class="sig-line"></div>
+            <span>Site Safety Supervisor Sign-off</span>
+            <span class="sig-sub font-mono">Date: &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</span>
+          </div>
+          <div class="sig-col">
+            <div class="sig-line"></div>
+            <span>Resident Project Engineer Verification</span>
+            <span class="sig-sub font-mono">Date: &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mock sheet placeholder empty view -->
+      <div class="preview-sheet-empty" *ngIf="!reportGenerated">
+        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+        <span>Select options on the left and compile to generate report preview sheet</span>
+      </div>
+    </div>
+  </div>
+</div>

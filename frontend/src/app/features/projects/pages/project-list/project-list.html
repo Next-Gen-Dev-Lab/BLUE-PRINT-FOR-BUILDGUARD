@@ -1,0 +1,134 @@
+<div class="projects-viewport">
+  <!-- Page Header -->
+  <div class="projects-header-row">
+    <div class="header-titles">
+      <h2>Project Registry</h2>
+      <p>Search, monitor structural progress, and safety ratings of site blueprints.</p>
+    </div>
+    
+    <!-- View Switch & Filters Controls -->
+    <div class="controls-container">
+      <!-- Search Bar -->
+      <div class="search-bar-wrapper">
+        <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <label for="projectListSearchInput" class="sr-only">Search projects</label>
+        <input id="projectListSearchInput"
+               type="text" 
+               placeholder="Search by name, engineer, town..." 
+               [(ngModel)]="searchQuery" 
+               (ngModelChange)="applyFilters()" 
+               class="search-input">
+      </div>
+
+      <!-- Filters Selects -->
+      <div class="filter-actions-group">
+        <label for="projectListStatusFilter" class="sr-only">Filter by status</label>
+        <select id="projectListStatusFilter" [(ngModel)]="statusFilter" (change)="applyFilters()" class="control-select">
+          <option value="">All Statuses</option>
+          <option value="active">Active Sites</option>
+          <option value="planning">Planning Phase</option>
+          <option value="delayed">Delayed</option>
+          <option value="completed">Completed</option>
+        </select>
+
+        <label for="projectListSortBy" class="sr-only">Sort by</label>
+        <select id="projectListSortBy" [(ngModel)]="sortBy" (change)="applyFilters()" class="control-select">
+          <option value="name">Alphabetical</option>
+          <option value="progress">Highest Progress</option>
+          <option value="compliance">Highest Compliance</option>
+        </select>
+        
+        <!-- Grid/List Switch buttons -->
+        <div class="toggle-buttons">
+          <button class="toggle-btn" 
+                  [ngClass]="{'active': viewMode === 'grid'}" 
+                  (click)="viewMode = 'grid'" 
+                  title="Grid View">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+          </button>
+          <button class="toggle-btn" 
+                  [ngClass]="{'active': viewMode === 'list'}" 
+                  (click)="viewMode = 'list'" 
+                  title="List View">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <app-loading-spinner *ngIf="isLoading" message="Retrieving safety registries..."></app-loading-spinner>
+
+  <!-- Empty State -->
+  <app-empty-state *ngIf="!isLoading && filteredProjects.length === 0" 
+                   title="No projects match filters"
+                   description="Try refining your query search text or status selectors."
+                   (actionClick)="searchQuery = ''; statusFilter = ''; applyFilters()"
+                   actionText="Clear Filters"
+                   iconType="search"></app-empty-state>
+
+  <!-- Projects Grid View (Uses ProjectCard component) -->
+  <div class="projects-grid" *ngIf="!isLoading && viewMode === 'grid' && filteredProjects.length > 0">
+    <div *ngFor="let proj of filteredProjects" class="grid-card-item">
+      <app-project-card [project]="proj" (viewDetails)="onViewDetails($event)"></app-project-card>
+    </div>
+  </div>
+
+  <!-- Projects List View (Custom List Grid Layout) -->
+  <div class="projects-list-container" *ngIf="!isLoading && viewMode === 'list' && filteredProjects.length > 0">
+    <table class="projects-list-table" aria-label="List of all project sites with location, status, progress, compliance rate, engineer, and action options">
+      <thead>
+        <tr>
+          <th>Project Name</th>
+          <th>Location</th>
+          <th>Status</th>
+          <th>Work Progress</th>
+          <th>Compliance</th>
+          <th>Engineer</th>
+          <th class="text-right">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let proj of filteredProjects" (click)="onViewDetails(proj.id)" tabindex="0" (keydown.enter)="onViewDetails(proj.id)" (keydown.space)="onViewDetails(proj.id); $event.preventDefault()">
+          <td>
+            <span class="list-proj-name font-bold">{{ proj.name }}</span>
+          </td>
+          <td>
+            <span class="list-proj-loc">{{ proj.location }}</span>
+          </td>
+          <td>
+            <span class="status-badge" [ngClass]="getStatusClass(proj.status)">
+              {{ getStatusLabel(proj.status) }}
+            </span>
+          </td>
+          <td>
+            <div class="list-progress-cell">
+              <span class="font-bold">{{ proj.progress }}%</span>
+              <div class="list-progress-bar-bg">
+                <div class="list-progress-bar-fill" [style.width.%]="proj.progress"></div>
+              </div>
+            </div>
+          </td>
+          <td>
+            <span class="list-compliance font-semibold" [ngClass]="{
+              'high': proj.complianceScore >= 90,
+              'mid': proj.complianceScore >= 75 && proj.complianceScore < 90,
+              'low': proj.complianceScore < 75
+            }">
+              {{ proj.complianceScore }}% Safety
+            </span>
+          </td>
+          <td>
+            <span class="list-engineer">{{ proj.assignedEngineer }}</span>
+          </td>
+          <td class="text-right">
+            <button class="list-manage-btn" (click)="$event.stopPropagation(); onViewDetails(proj.id)">
+              Manage
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

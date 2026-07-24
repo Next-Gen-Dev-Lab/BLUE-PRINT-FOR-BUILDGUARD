@@ -1,0 +1,55 @@
+<div class="auth-bg">
+  <div class="auth-card-container">
+    <div class="auth-card">
+      <div class="auth-logo">
+        <svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" stroke="#ea580c" stroke-width="3"></rect><path d="M12 8v8M8 12h8" stroke="#1e3a8a" stroke-width="3"></path></svg>
+        <span class="logo-text">Build<span class="orange-text">Guard</span></span>
+      </div>
+
+      <div class="status-badge-row">
+        <span class="status-pill-badge pending">Pending Admin Approval</span>
+      </div>
+
+      <div class="auth-header text-center">
+        <h2>Account Created Successfully</h2>
+        <p>Your registration is complete. For safety security controls, an administrator must verify your Employee ID and company credentials before granting access.</p>
+      </div>
+
+      <div class="account-details-card" *ngIf="pendingUser">
+        <h5>Operator Profile</h5>
+        <div class="detail-row">
+          <span class="detail-label">Full Name</span>
+          <span class="detail-val">{{ pendingUser.name }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Employee ID</span>
+          <span class="detail-val font-mono">{{ pendingUser.employeeId }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Company</span>
+          <span class="detail-val">{{ pendingUser.companyName }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Work Role</span>
+          <span class="detail-val">{{ getRoleLabel(pendingUser.role) }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Work Email</span>
+          <span class="detail-val">{{ pendingUser.email }}</span>
+        </div>
+      </div>
+
+      <div class="contact-support-block">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+        <div class="support-info">
+          <span>Need immediate access?</span>
+          <p>Please contact your site safety desk manager or email <a href="mailto:safety-admin@buildguard.com">safety-admin&#64;buildguard.com</a></p>
+        </div>
+      </div>
+
+      <button routerLink="/auth/login" class="auth-btn w-full">
+        Return to Sign In
+      </button>
+    </div>
+  </div>
+</div>

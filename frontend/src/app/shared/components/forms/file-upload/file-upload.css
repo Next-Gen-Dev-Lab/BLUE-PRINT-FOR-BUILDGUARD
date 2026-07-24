@@ -1,0 +1,161 @@
+.upload-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+.drag-zone {
+  border: 2px dashed var(--border-color, #cbd5e1);
+  background-color: var(--bg-light, #f8fafc);
+  border-radius: 12px;
+  padding: 32px 20px;
+  text-align: center;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  transition: all 0.2s ease-in-out;
+}
+
+.drag-zone:hover, .drag-zone.drag-over {
+  border-color: #2563eb;
+  background-color: #eff6ff;
+}
+
+.hidden-input {
+  display: none;
+}
+
+.upload-icon-wrapper {
+  color: var(--text-secondary, #64748b);
+  transition: color 0.2s;
+}
+
+.drag-zone:hover .upload-icon-wrapper, .drag-zone.drag-over .upload-icon-wrapper {
+  color: #2563eb;
+  transform: translateY(-2px);
+}
+
+.drag-text-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.primary-text {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary, #334155);
+}
+
+.highlight {
+  color: #2563eb;
+  text-decoration: underline;
+}
+
+.secondary-text {
+  font-size: 12px;
+  color: var(--text-secondary, #94a3b8);
+}
+
+/* Files Preview List */
+.files-preview-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.file-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background-color: var(--bg-card, #ffffff);
+  border: 1px solid var(--border-color, #e2e8f0);
+}
+
+.file-icon {
+  color: #2563eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.file-details {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  min-width: 0;
+}
+
+.file-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary, #334155);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.file-size {
+  font-size: 11px;
+  color: var(--text-secondary, #94a3b8);
+}
+
+.remove-file-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--text-secondary, #94a3b8);
+  padding: 4px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.remove-file-btn:hover {
+  background-color: #fee2e2;
+  color: #dc2626;
+}
+
+/* Dark Theme overrides */
+:host-context(.dark-theme) .drag-zone {
+  border-color: #475569;
+  background-color: #0f172a;
+}
+
+:host-context(.dark-theme) .drag-zone:hover, :host-context(.dark-theme) .drag-zone.drag-over {
+  border-color: #3b82f6;
+  background-color: #172554;
+}
+
+:host-context(.dark-theme) .primary-text {
+  color: #cbd5e1;
+}
+
+:host-context(.dark-theme) .highlight {
+  color: #60a5fa;
+}
+
+:host-context(.dark-theme) .secondary-text {
+  color: #64748b;
+}
+
+:host-context(.dark-theme) .file-item {
+  background-color: #1e293b;
+  border-color: #334155;
+}
+
+:host-context(.dark-theme) .file-name {
+  color: #cbd5e1;
+}
+
+:host-context(.dark-theme) .file-icon {
+  color: #60a5fa;
+}

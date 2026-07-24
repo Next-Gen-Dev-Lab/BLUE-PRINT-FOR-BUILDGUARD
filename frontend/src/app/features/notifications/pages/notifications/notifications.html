@@ -1,0 +1,82 @@
+<div class="crud-container animate-fade-in">
+  <!-- Title and Actions Header -->
+  <div class="crud-header">
+    <div class="header-left">
+      <h2>Notification & Alert Center</h2>
+      <p>Audit trail logs, safety violation updates, and site progress notifications.</p>
+    </div>
+    
+    <div class="header-actions" *ngIf="notifications.length > 0">
+      <button class="secondary-btn" (click)="markAllAsRead()">Mark All Read</button>
+      <button class="danger-btn" (click)="clearAll()">Clear All Logs</button>
+    </div>
+  </div>
+
+  <!-- Filter & Search Toolbar -->
+  <div class="crud-toolbar">
+    <div class="search-box">
+      <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+      <label for="notificationsSearchQuery" class="sr-only">Search alert log titles, keywords</label>
+      <input id="notificationsSearchQuery" type="text" [(ngModel)]="searchQuery" (ngModelChange)="applyFilters()" placeholder="Search alert log titles, keywords...">
+    </div>
+    
+    <div class="filters-box">
+      <label for="notificationsTypeSelect" class="sr-only">Filter by category</label>
+      <select id="notificationsTypeSelect" [(ngModel)]="typeFilter" (change)="applyFilters()" class="filter-select">
+        <option value="">All Categories</option>
+        <option value="safety">Safety Alerts</option>
+        <option value="project">Project Updates</option>
+        <option value="inspection">Inspections</option>
+        <option value="approval">Admin Approvals</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Main View Area -->
+  <div class="crud-card">
+    <div class="table-loading-overlay" *ngIf="isLoading">
+      <app-loading-spinner></app-loading-spinner>
+    </div>
+
+    <!-- Notifications List -->
+    <div class="notifications-list-body" *ngIf="!isLoading">
+      <div class="notifications-feed-list" *ngIf="filteredNotifications.length > 0; else emptyState">
+        <div class="feed-item-card" 
+             *ngFor="let notif of filteredNotifications" 
+             [ngClass]="{'unread': !notif.isRead}">
+          <div class="feed-item-left">
+            <span class="feed-category-badge" [ngClass]="notif.type">
+              {{ getTypeLabel(notif.type) }}
+            </span>
+            <div class="feed-message">
+              <h4 class="font-bold">{{ notif.title }}</h4>
+              <p class="feed-text">{{ notif.content }}</p>
+              <span class="feed-meta">{{ notif.timestamp | date:'medium' }}</span>
+            </div>
+          </div>
+
+          <div class="feed-item-right">
+            <button class="mark-read-circle-btn" 
+                    *ngIf="!notif.isRead" 
+                    (click)="markAsRead(notif.id)" 
+                    title="Mark as Read">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            </button>
+            <span class="read-check-icon" *ngIf="notif.isRead" title="Read">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <ng-template #emptyState>
+        <div class="empty-state-container padding-large">
+          <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+          <h4>All Caught Up!</h4>
+          <p>No safety logs or compliance reports found in your inbox log matching selected parameters.</p>
+        </div>
+      </ng-template>
+    </div>
+  </div>
+</div>

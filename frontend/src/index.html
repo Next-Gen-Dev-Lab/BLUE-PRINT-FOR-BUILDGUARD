@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Buildguard</title>
+  <base href="/">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+ <link rel="icon" type="image/jpeg" href="assets/images/logo.jpg">
+</head>
+<body>
+  <script>
+    window.onerror = function(message, source, lineno, colno, error) {
+      const div = document.createElement('div');
+      div.style.position = 'fixed';
+      div.style.top = '0';
+      div.style.left = '0';
+      div.style.width = '100%';
+      div.style.backgroundColor = '#ef4444';
+      div.style.color = '#ffffff';
+      div.style.padding = '16px';
+      div.style.zIndex = '999999';
+      div.style.fontFamily = 'monospace';
+      div.style.fontSize = '14px';
+      div.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)';
+      div.innerHTML = '<strong>[Runtime Boot Error]:</strong> ' + message + ' <br><em>File: ' + source + ' (Line: ' + lineno + ', Col: ' + colno + ')</em>';
+      document.body.appendChild(div);
+      return false;
+    };
+    window.onunhandledrejection = function(event) {
+      const div = document.createElement('div');
+      div.style.position = 'fixed';
+      div.style.bottom = '0';
+      div.style.left = '0';
+      div.style.width = '100%';
+      div.style.backgroundColor = '#f59e0b';
+      div.style.color = '#ffffff';
+      div.style.padding = '16px';
+      div.style.zIndex = '999999';
+      div.style.fontFamily = 'monospace';
+      div.style.fontSize = '14px';
+      div.innerHTML = '<strong>[Unhandled Rejection]:</strong> ' + (event.reason?.stack || event.reason?.message || event.reason);
+      document.body.appendChild(div);
+    };
+  </script>
+  <app-root></app-root>
+</body>
+</html>

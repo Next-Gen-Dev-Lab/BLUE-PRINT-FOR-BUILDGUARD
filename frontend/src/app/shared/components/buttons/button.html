@@ -1,0 +1,11 @@
+<button 
+  [type]="type"
+  [disabled]="disabled || loading"
+  [class]="'btn btn-' + variant + ' btn-' + size"
+  [class.btn-loading]="loading"
+>
+  <span class="btn-spinner" *ngIf="loading"></span>
+  <span class="btn-content" [class.invisible]="loading">
+    <ng-content></ng-content>
+  </span>
+</button>

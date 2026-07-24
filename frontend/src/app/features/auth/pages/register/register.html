@@ -1,0 +1,156 @@
+<div class="auth-bg">
+  <div class="auth-card-container">
+    <div class="auth-card">
+      <div class="auth-logo">
+        <svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" stroke="#ea580c" stroke-width="3"></rect><path d="M12 8v8M8 12h8" stroke="#1e3a8a" stroke-width="3"></path></svg>
+        <span class="logo-text">Build<span class="orange-text">Guard</span></span>
+      </div>
+
+      <div class="auth-header">
+        <h2>Create Account</h2>
+        <p>Register as a certified construction operator to connect to the compliance desk.</p>
+      </div>
+
+      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="auth-form">
+        <!-- Error Banner -->
+        <div *ngIf="errorMessage" class="error-banner">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+          <span>{{ errorMessage }}</span>
+        </div>
+
+        <div class="form-grid">
+          <!-- Full Name -->
+          <div class="form-group">
+            <label for="fullName">Full Name</label>
+            <div class="input-wrapper" [ngClass]="{'has-error': registerForm.get('fullName')?.touched && registerForm.get('fullName')?.invalid}">
+              <input type="text" id="fullName" formControlName="fullName" placeholder="Sarah Connor">
+            </div>
+            <span class="validation-message" *ngIf="registerForm.get('fullName')?.touched && registerForm.get('fullName')?.invalid">
+              Full name is required
+            </span>
+          </div>
+
+          <!-- Employee ID -->
+          <div class="form-group">
+            <label for="employeeId">Employee ID</label>
+            <div class="input-wrapper" [ngClass]="{'has-error': registerForm.get('employeeId')?.touched && registerForm.get('employeeId')?.invalid}">
+              <input type="text" id="employeeId" formControlName="employeeId" placeholder="EMP-4420">
+            </div>
+            <span class="validation-message" *ngIf="registerForm.get('employeeId')?.touched && registerForm.get('employeeId')?.invalid">
+              Employee ID is required
+            </span>
+          </div>
+
+          <!-- Company Name -->
+          <div class="form-group">
+            <label for="companyName">Company Name</label>
+            <div class="input-wrapper" [ngClass]="{'has-error': registerForm.get('companyName')?.touched && registerForm.get('companyName')?.invalid}">
+              <input type="text" id="companyName" formControlName="companyName" placeholder="Apex Builders Inc.">
+            </div>
+            <span class="validation-message" *ngIf="registerForm.get('companyName')?.touched && registerForm.get('companyName')?.invalid">
+              Company name is required
+            </span>
+          </div>
+
+          <!-- Email Address -->
+          <div class="form-group">
+            <label for="email">Email Address</label>
+            <div class="input-wrapper" [ngClass]="{'has-error': registerForm.get('email')?.touched && registerForm.get('email')?.invalid}">
+              <input type="email" id="email" formControlName="email" placeholder="sarah.c@apex.com">
+            </div>
+            <span class="validation-message" *ngIf="registerForm.get('email')?.touched && registerForm.get('email')?.invalid">
+              Valid email is required
+            </span>
+          </div>
+
+          <!-- Mobile Number -->
+          <div class="form-group">
+            <label for="mobileNumber">Mobile Number</label>
+            <div class="input-wrapper" [ngClass]="{'has-error': registerForm.get('mobileNumber')?.touched && registerForm.get('mobileNumber')?.invalid}">
+              <input type="tel" id="mobileNumber" formControlName="mobileNumber" placeholder="+1 (555) 123-4567" inputmode="tel">
+            </div>
+            <span class="validation-message" *ngIf="registerForm.get('mobileNumber')?.touched && registerForm.get('mobileNumber')?.invalid">
+              Valid phone number is required
+            </span>
+          </div>
+        </div>
+
+        <!-- Role Selector -->
+        <div class="form-group">
+          <label for="role">Assigned Platform Role</label>
+          <div class="input-wrapper" [ngClass]="{'has-error': registerForm.get('role')?.touched && registerForm.get('role')?.invalid}">
+            <select id="role" formControlName="role" class="select-input">
+              <option value="" disabled selected>Select your project role...</option>
+              <option *ngFor="let role of roles" [value]="role.value">{{ role.label }}</option>
+            </select>
+          </div>
+          <span class="validation-message" *ngIf="registerForm.get('role')?.touched && registerForm.get('role')?.invalid">
+            Please assign a role
+          </span>
+        </div>
+
+        <div class="form-grid">
+          <!-- Password -->
+          <div class="form-group">
+            <label for="password">Password</label>
+            <div class="input-wrapper" [ngClass]="{'has-error': registerForm.get('password')?.touched && registerForm.get('password')?.invalid}">
+              <input type="password" id="password" formControlName="password" placeholder="Min. 6 chars">
+            </div>
+            
+            <!-- Password Strength Bar Indicator -->
+            <div class="strength-indicator-bar" *ngIf="registerForm.get('password')?.value">
+              <div class="strength-bar-fill" 
+                   [style.width.%]="passwordStrengthPercent"
+                   [ngClass]="passwordStrength"></div>
+              <span class="strength-label">Password strength: <span class="strength-text" [ngClass]="passwordStrength">{{ passwordStrength }}</span></span>
+            </div>
+
+            <span class="validation-message" *ngIf="registerForm.get('password')?.touched && registerForm.get('password')?.hasError('required')">
+              Password is required
+            </span>
+            <span class="validation-message" *ngIf="registerForm.get('password')?.touched && registerForm.get('password')?.hasError('minlength')">
+              Password must be at least 6 characters
+            </span>
+          </div>
+
+          <!-- Confirm Password -->
+          <div class="form-group">
+            <label for="confirmPassword">Confirm Password</label>
+            <div class="input-wrapper" [ngClass]="{'has-error': (registerForm.get('confirmPassword')?.touched && registerForm.get('confirmPassword')?.invalid) || (registerForm.touched && registerForm.hasError('mismatch'))}">
+              <input type="password" id="confirmPassword" formControlName="confirmPassword" placeholder="Repeat password">
+            </div>
+            <span class="validation-message" *ngIf="registerForm.get('confirmPassword')?.touched && registerForm.get('confirmPassword')?.hasError('required')">
+              Confirm password is required
+            </span>
+            <span class="validation-message" *ngIf="registerForm.touched && registerForm.hasError('mismatch') && !registerForm.get('confirmPassword')?.hasError('required')">
+              Passwords do not match
+            </span>
+          </div>
+        </div>
+
+        <!-- Accept Terms Checkbox -->
+        <div class="checkbox-row">
+          <label class="custom-checkbox">
+            <input type="checkbox" formControlName="acceptTerms">
+            <span class="checkmark"></span>
+            <span class="checkbox-label">I accept the BuildGuard Safety Compliance & Data Usage Terms</span>
+          </label>
+          <span class="validation-message block" *ngIf="registerForm.get('acceptTerms')?.touched && registerForm.get('acceptTerms')?.invalid">
+            You must accept terms to proceed
+          </span>
+        </div>
+
+        <!-- Register button -->
+        <button type="submit" class="auth-btn" [disabled]="registerForm.invalid || isLoading">
+          <span *ngIf="!isLoading">Register Account</span>
+          <app-loading-spinner *ngIf="isLoading" size="sm" color="white"></app-loading-spinner>
+        </button>
+
+        <div class="auth-footer">
+          <span>Already have an account?</span>
+          <a routerLink="/auth/login" class="register-link">Sign In</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,237 @@
+<div class="blueprint-viewport">
+  
+  <!-- Left Side: Project and Blueprints selectors -->
+  <div class="blueprint-sidebar-left">
+    <div class="sidebar-block select-block">
+      <label for="projSelect">Select Project Site</label>
+      <select id="projSelect" [(ngModel)]="selectedProjectId" (change)="onProjectChange()" class="sidebar-select">
+        <option *ngFor="let proj of projects" [value]="proj.id">{{ proj.name }}</option>
+      </select>
+    </div>
+
+    <!-- Blueprints List -->
+    <div class="sidebar-block blueprints-list-block">
+      <h5>Site Drawings</h5>
+      <app-loading-spinner *ngIf="isLoadingBlueprints" size="sm"></app-loading-spinner>
+      
+      <div class="blueprints-links-list" *ngIf="!isLoadingBlueprints && blueprints.length > 0">
+        <button *ngFor="let bp of blueprints" 
+                class="bp-link-btn" 
+                [ngClass]="{'active': selectedBlueprint?.id === bp.id}"
+                (click)="selectBlueprint(bp)">
+          <div class="bp-link-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+          </div>
+          <div class="bp-link-meta">
+            <span class="bp-link-name font-bold">{{ bp.name }}</span>
+            <span class="bp-link-ver">Ver. {{ bp.version }}</span>
+          </div>
+        </button>
+      </div>
+
+      <div class="sidebar-empty" *ngIf="!isLoadingBlueprints && blueprints.length === 0">
+        No blueprints linked to this site project.
+      </div>
+    </div>
+  </div>
+
+  <!-- Center: CAD PDF Blueprint Viewer mockup -->
+  <div class="blueprint-viewer-col">
+    <!-- Viewer Header (File Name) -->
+    <div class="viewer-header" *ngIf="selectedBlueprint">
+      <div class="viewer-file-info">
+        <h4>{{ selectedBlueprint.name }}</h4>
+        <span class="viewer-version-tag">ACTIVE: {{ selectedBlueprint.version }}</span>
+      </div>
+      
+      <!-- Toolbar Controls -->
+      <div class="viewer-toolbar">
+        <button class="toolbar-btn" (click)="zoomOut()" title="Zoom Out">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        </button>
+        <span class="zoom-pct">{{ Math.round(zoomScale * 100) }}%</span>
+        <button class="toolbar-btn" (click)="zoomIn()" title="Zoom In">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        </button>
+        <div class="toolbar-divider"></div>
+        <button class="toolbar-btn" (click)="rotateCounter()" title="Rotate Left">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 2v6h6M2.66 15.57a10 10 0 1 0-.57-8.38l5.67-5.67"></path></svg>
+        </button>
+        <button class="toolbar-btn" (click)="rotateClockwise()" title="Rotate Right">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1 .57-8.38l-5.67-5.67"></path></svg>
+        </button>
+        <div class="toolbar-divider"></div>
+        <button class="toolbar-btn" (click)="resetViewport()" title="Reset Alignment">Fit</button>
+        <button class="toolbar-btn btn-download" (click)="mockDownload()" title="Download PDF Drawing">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Viewer Port Canvas (CAD mock vector SVG blueprint) -->
+    <div class="viewer-canvas-viewport" 
+         (mousedown)="startPan($event)" 
+         (mousemove)="pan($event)" 
+         (mouseup)="stopPan()" 
+         (mouseleave)="stopPan()"
+         [ngClass]="{'grabbing': isPanning}">
+         
+      <div class="canvas-transform-wrapper" 
+           *ngIf="selectedBlueprint; else selectBlueprintEmpty"
+           [style.transform]="'translate(' + panOffset.x + 'px, ' + panOffset.y + 'px) scale(' + zoomScale + ') rotate(' + rotateDegrees + 'deg)'"
+           [style.transform-origin]="'center center'">
+           
+        <!-- Highly Premium SVG CAD Grid Drawing -->
+        <svg width="600" height="420" viewBox="0 0 600 420" class="blueprint-svg">
+          <!-- Dark blue background drawing layer -->
+          <rect width="600" height="420" fill="#1e3a8a"></rect>
+          
+          <!-- Drawing Grid Lines -->
+          <defs>
+            <pattern id="blueprintGrid" width="20" height="20" patternUnits="userSpaceOnUse">
+              <rect width="20" height="20" fill="none" stroke="rgba(255, 255, 255, 0.08)" stroke-width="0.75"></rect>
+              <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(255, 255, 255, 0.15)" stroke-width="1.2"></path>
+            </pattern>
+          </defs>
+          <rect width="600" height="420" fill="url(#blueprintGrid)"></rect>
+
+          <!-- Architectural Floor Plan Vector paths -->
+          <g stroke="rgba(255, 255, 255, 0.75)" stroke-width="1.5" fill="none" stroke-linecap="round">
+            <!-- Exterior boundaries -->
+            <rect x="50" y="50" width="500" height="320" stroke-width="2.5"></rect>
+            
+            <!-- Interior walls & sectors -->
+            <line x1="200" y1="50" x2="200" y2="370"></line>
+            <line x1="400" y1="50" x2="400" y2="370"></line>
+            <line x1="200" y1="180" x2="400" y2="180"></line>
+            
+            <!-- Corridor lines -->
+            <line x1="50" y1="230" x2="200" y2="230"></line>
+            <line x1="400" y1="230" x2="550" y2="230"></line>
+            
+            <!-- Elevator cores / Stairs core -->
+            <rect x="250" y="80" width="100" height="60" stroke-dasharray="4 4"></rect>
+            <line x1="250" y1="80" x2="350" y2="140"></line>
+            <line x1="350" y1="80" x2="250" y2="140"></line>
+            
+            <!-- Structural Columns Indicators -->
+            <g fill="#3b82f6" stroke="#ffffff" stroke-width="1">
+              <circle cx="50" cy="50" r="6"></circle>
+              <circle cx="200" cy="50" r="6"></circle>
+              <circle cx="400" cy="50" r="6"></circle>
+              <circle cx="550" cy="50" r="6"></circle>
+              <circle cx="50" cy="210" r="6"></circle>
+              <circle cx="200" cy="180" r="6"></circle>
+              <circle cx="400" cy="180" r="6"></circle>
+              <circle cx="550" cy="210" r="6"></circle>
+              <circle cx="50" cy="370" r="6"></circle>
+              <circle cx="200" cy="370" r="6"></circle>
+              <circle cx="400" cy="370" r="6"></circle>
+              <circle cx="550" cy="370" r="6"></circle>
+            </g>
+
+            <!-- Doors arches (CAD arcs representation) -->
+            <path d="M 200 280 A 40 40 0 0 1 240 320" stroke="#cbd5e1" stroke-dasharray="2 2"></path>
+            <line x1="200" y1="320" x2="200" y2="280" stroke="#cbd5e1"></line>
+            
+            <path d="M 400 280 A 40 40 0 0 0 360 320" stroke="#cbd5e1" stroke-dasharray="2 2"></path>
+            <line x1="400" y1="320" x2="400" y2="280" stroke="#cbd5e1"></line>
+          </g>
+
+          <!-- Neon Warnings / AI Scans Indicators Overlay -->
+          <!-- Flashing perimeter edge warning in orange accent -->
+          <g stroke="#f97316" stroke-width="3" fill="none">
+            <line x1="50" y1="370" x2="200" y2="370" stroke-dasharray="4 4" class="pulse-warning-line"></line>
+            <g fill="#ea580c" stroke="#ffffff" stroke-width="1.5">
+              <polygon points="120,360 128,376 112,376" class="pulse-warning-icon"></polygon>
+            </g>
+          </g>
+
+          <!-- Label markings text -->
+          <g fill="rgba(255, 255, 255, 0.7)" font-family="monospace" font-size="10" font-weight="700">
+            <text x="120" y="110" text-anchor="middle">OFFICE CORE ZONE A</text>
+            <text x="300" y="270" text-anchor="middle">MAIN ENTRANCE FOYER</text>
+            <text x="480" y="110" text-anchor="middle">HVAC SHAFT ZONE B</text>
+            <text x="300" y="160" fill="#f97316" text-anchor="middle">STAIRWELL CORES (V.L.)</text>
+            <text x="120" y="395" fill="#fb923c" text-anchor="middle">WARNING: EDGE HAZARD ALERT SA-1</text>
+          </g>
+        </svg>
+      </div>
+
+      <ng-template #selectBlueprintEmpty>
+        <div class="canvas-empty">
+          <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+          <span>Select an active CAD drawing from sidebar to activate compiler cockpit</span>
+        </div>
+      </ng-template>
+    </div>
+  </div>
+
+  <!-- Right Side: Details & Comments & Version Control -->
+  <div class="blueprint-sidebar-right" *ngIf="selectedBlueprint">
+    <!-- Version history -->
+    <div class="detail-card version-history-card">
+      <div class="card-header-row">
+        <h5>Revisions Logs</h5>
+        <button class="header-action-btn" (click)="toggleAddVersion()">
+          {{ isAddingVersion ? 'View Logs' : 'New Revision' }}
+        </button>
+      </div>
+      
+      <!-- Standard Version List -->
+      <div class="versions-scroll-area" *ngIf="!isAddingVersion">
+        <div class="version-log-node" *ngFor="let ver of selectedBlueprint.versionHistory">
+          <div class="node-header">
+            <span class="node-ver font-bold">{{ ver.version }}</span>
+            <span class="node-date font-mono">{{ ver.date }}</span>
+          </div>
+          <p class="node-desc">{{ ver.changeLog }}</p>
+          <span class="node-author">Modified by: {{ ver.author }}</span>
+        </div>
+      </div>
+
+      <!-- Add New Version Form -->
+      <div class="version-add-form" *ngIf="isAddingVersion">
+        <div class="sidebar-form-group">
+          <label for="newVer">Version Code</label>
+          <input type="text" id="newVer" [(ngModel)]="newVersionStr" placeholder="e.g. v2.5" class="sidebar-input">
+        </div>
+        <div class="sidebar-form-group">
+          <label for="newLog">Changelog Summary</label>
+          <textarea id="newLog" [(ngModel)]="newVersionChangeLog" placeholder="Detail modified items..." rows="3" class="sidebar-textarea"></textarea>
+        </div>
+        <button class="sidebar-submit-btn" (click)="submitNewVersion()">Upload Revision</button>
+      </div>
+    </div>
+
+    <!-- Comments markup feed panel -->
+    <div class="detail-card comments-card">
+      <h5>Markup & Comments Thread</h5>
+      
+      <!-- Comment Input -->
+      <div class="comment-input-box">
+        <label for="newCommentText" class="sr-only">Add engineering remark</label>
+        <textarea id="newCommentText" [(ngModel)]="newCommentText" placeholder="Add engineering remarks, hazard tag notes..." rows="2" class="comment-textarea"></textarea>
+        <button class="comment-submit-btn" (click)="addComment()" [disabled]="!newCommentText.trim()">
+          Post Remark
+        </button>
+      </div>
+
+      <!-- Scrollable Comments stack -->
+      <div class="comments-scroll-area">
+        <div class="comment-item" *ngFor="let comm of selectedBlueprint.comments">
+          <div class="comment-header">
+            <span class="comment-author font-bold">{{ comm.author }}</span>
+            <span class="comment-role font-semibold">{{ comm.role }}</span>
+          </div>
+          <p class="comment-text">{{ comm.text }}</p>
+          <span class="comment-time font-mono">{{ comm.timestamp }}</span>
+        </div>
+        
+        <div class="comments-empty" *ngIf="selectedBlueprint.comments.length === 0">
+          No remarks recorded for this blueprint layout.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

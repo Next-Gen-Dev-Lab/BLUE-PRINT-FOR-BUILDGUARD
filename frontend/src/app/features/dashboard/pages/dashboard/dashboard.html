@@ -1,0 +1,378 @@
+<div class="dashboard-viewport animate-fade-in">
+  <div class="table-loading-overlay" *ngIf="isLoading" style="padding: 100px; display: flex; justify-content: center; align-items: center; width: 100%;">
+    <app-loading-spinner></app-loading-spinner>
+  </div>
+
+  <ng-container *ngIf="!isLoading">
+    <!-- ==========================================
+         Welcome & Profile Header
+         ========================================== -->
+  <div class="dashboard-welcome">
+    <div class="welcome-left">
+      <h2>Welcome Back, {{ currentUser?.name }}</h2>
+      <p>Role: <span class="role-badge">{{ currentUser?.role | uppercase }}</span> | Organization: Apex Builders Inc.</p>
+    </div>
+    <div class="weather-widget" *ngIf="currentUser?.role === 'foreman' || currentUser?.role === 'engineer'">
+      <div class="weather-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"><animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="15s" repeatCount="indefinite"/></path><circle cx="12" cy="12" r="4"/></svg>
+      </div>
+      <div class="weather-info">
+        <span class="temp">{{ weatherMock.temp }}</span>
+        <span class="cond">{{ weatherMock.condition }} - {{ weatherMock.location }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       ADMIN DASHBOARD
+       ========================================== -->
+  <ng-container *ngIf="currentUser?.role === 'admin'">
+    <!-- KPIs -->
+    <div class="kpi-grid">
+      <app-kpi-card title="Total Users" [value]="usersCount" subtitle="Active employees" iconType="workers" cardTheme="blue"></app-kpi-card>
+      <app-kpi-card title="Total Projects" [value]="kpiStats.totalProjects" subtitle="Active job sites" iconType="project" cardTheme="green"></app-kpi-card>
+      <app-kpi-card title="Total Blueprints" [value]="blueprintsCount" subtitle="Authorized schemes" iconType="site" cardTheme="gray"></app-kpi-card>
+      <app-kpi-card title="Pending Inspections" [value]="kpiStats.pendingInspections" subtitle="Audits scheduled" iconType="inspection_pending" cardTheme="orange"></app-kpi-card>
+      <app-kpi-card title="Compliance Score" [value]="kpiStats.complianceScore + '%'" subtitle="Average rating" iconType="compliance" cardTheme="blue"></app-kpi-card>
+      <app-kpi-card title="AI Safety Alerts" [value]="kpiStats.aiSafetyAlerts" subtitle="Immediate hazards" iconType="alert" cardTheme="red"></app-kpi-card>
+    </div>
+
+    <!-- Main Dashboard Grid Layout -->
+    <div class="dashboard-grid">
+      <!-- Left Column (Visual Analytics & Tables) -->
+      <div class="grid-col-left">
+        <!-- Charts Layout -->
+        <div class="charts-row">
+          <app-chart-card title="Weekly Safety Compliance Progress" chartType="bar" [data]="progressChartData" [labels]="progressChartLabels" [height]="200"></app-chart-card>
+          <app-chart-card title="Monthly Inspections History" chartType="line" [data]="inspectionChartData" [labels]="inspectionChartLabels" [height]="200"></app-chart-card>
+        </div>
+
+        <!-- Recent Inspections Table -->
+        <div class="dashboard-card">
+          <div class="card-header">
+            <h3>Recent Safety Inspections</h3>
+            <a routerLink="/inspections" class="view-all-link">View All</a>
+          </div>
+          <div class="card-body scrollable-table">
+            <table class="dashboard-table" aria-label="Recent safety inspections with details on project site, audit type, date, score, inspector, and status">
+              <thead>
+                <tr>
+                  <th>Project Site</th>
+                  <th>Audit Type</th>
+                  <th>Scheduled Date</th>
+                  <th>Score</th>
+                  <th>Inspector</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let audit of inspections.slice(0, 4)">
+                  <td class="font-semibold">{{ audit.projectName }}</td>
+                  <td>{{ audit.type }}</td>
+                  <td>{{ audit.date | date:'mediumDate' }}</td>
+                  <td>
+                    <span *ngIf="audit.status !== 'scheduled'" class="score-badge" [ngClass]="audit.score >= 75 ? 'passed' : 'failed'">
+                      {{ audit.score }}%
+                    </span>
+                    <span *ngIf="audit.status === 'scheduled'">--</span>
+                  </td>
+                  <td>{{ audit.assignedInspector }}</td>
+                  <td>
+                    <span class="status-dot-badge" [ngClass]="audit.status">
+                      {{ audit.status | uppercase }}
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Today's Activity Timeline -->
+        <div class="dashboard-card">
+          <div class="card-header">
+            <h3>Today's Construction Activity Log</h3>
+          </div>
+          <div class="card-body">
+            <div class="activity-timeline">
+              <div class="timeline-item" *ngFor="let update of projects[0]?.recentUpdates">
+                <div class="timeline-badge-dot"></div>
+                <div class="timeline-content">
+                  <p class="timeline-text">{{ update }}</p>
+                  <span class="timeline-time">Today</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column (Quick Actions & Summaries) -->
+      <div class="grid-col-right">
+        <!-- circular Compliance score gauge -->
+        <app-chart-card title="Overall Safety Index" chartType="gauge" [score]="kpiStats.complianceScore" [height]="220"></app-chart-card>
+
+        <!-- Quick Actions -->
+        <div class="dashboard-card">
+          <div class="card-header">
+            <h3>Quick Manager Actions</h3>
+          </div>
+          <div class="card-body quick-actions-grid">
+            <a routerLink="/inspections" class="action-btn-item">
+              <span class="action-icon info-theme"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg></span>
+              <span class="action-title">Schedule Audit</span>
+            </a>
+            <a routerLink="/blueprints" class="action-btn-item">
+              <span class="action-icon success-theme"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg></span>
+              <span class="action-title">Upload Blueprint</span>
+            </a>
+            <a routerLink="/email" class="action-btn-item">
+              <span class="action-icon warning-theme"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg></span>
+              <span class="action-title">Send Alert Email</span>
+            </a>
+            <a routerLink="/users" class="action-btn-item">
+              <span class="action-icon primary-theme"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg></span>
+              <span class="action-title">Add User</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- Upcoming Schedules -->
+        <div class="dashboard-card">
+          <div class="card-header">
+            <h3>Upcoming Site Schedules</h3>
+            <a routerLink="/schedules" class="view-all-link">Calendar</a>
+          </div>
+          <div class="card-body">
+            <div class="upcoming-schedules-list">
+              <div class="schedule-card-item" *ngFor="let item of schedules.slice(0, 3)">
+                <div class="schedule-type-icon" [ngClass]="item.type"></div>
+                <div class="schedule-info">
+                  <h4>{{ item.title }}</h4>
+                  <span class="sched-meta">{{ item.projectName }} | {{ item.date }} @ {{ item.time }}</span>
+                  <span class="sched-assign">Assigned: {{ item.assignedTo }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Notifications -->
+        <div class="dashboard-card">
+          <div class="card-header">
+            <h3>Recent Notifications</h3>
+            <a routerLink="/notifications" class="view-all-link">Inbox</a>
+          </div>
+          <div class="card-body">
+            <ul class="recent-notifications-list">
+              <li *ngFor="let not of notificationsList.slice(0, 3)" [ngClass]="{'unread': !not.isRead}">
+                <span class="not-title font-semibold">{{ not.title }}</span>
+                <p class="not-desc">{{ not.content }}</p>
+                <span class="not-time">{{ not.timestamp | date:'short' }}</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- ==========================================
+       PROJECT ENGINEER DASHBOARD
+       ========================================== -->
+  <ng-container *ngIf="currentUser?.role === 'engineer'">
+    <!-- KPIs -->
+    <div class="kpi-grid">
+      <app-kpi-card title="Assigned Projects" [value]="projects.length" subtitle="Monitored sites" iconType="project" cardTheme="blue"></app-kpi-card>
+      <app-kpi-card title="Unresolved Violations" [value]="kpiStats.aiSafetyAlerts" subtitle="Open critical alerts" iconType="alert" cardTheme="red"></app-kpi-card>
+      <app-kpi-card title="Pending Audits" [value]="kpiStats.pendingInspections" subtitle="Inspections to conduct" iconType="inspection_pending" cardTheme="orange"></app-kpi-card>
+      <app-kpi-card title="Site Compliance Score" [value]="kpiStats.complianceScore + '%'" subtitle="Safety Index Rating" iconType="compliance" cardTheme="green"></app-kpi-card>
+    </div>
+
+    <!-- Main Engineer Grid -->
+    <div class="dashboard-grid">
+      <div class="grid-col-left">
+        <!-- Weekly compliance and inspections analytics -->
+        <div class="charts-row">
+          <app-chart-card title="Inspection Audit History" chartType="line" [data]="inspectionChartData" [labels]="inspectionChartLabels" [height]="220"></app-chart-card>
+          <app-chart-card title="Site Development Milestones" chartType="bar" [data]="progressChartData" [labels]="progressChartLabels" [height]="220"></app-chart-card>
+        </div>
+
+        <!-- Assigned Projects List -->
+        <div class="dashboard-card">
+          <div class="card-header">
+            <h3>My Monitored Projects</h3>
+            <a routerLink="/projects" class="view-all-link">Projects</a>
+          </div>
+          <div class="card-body">
+            <div class="projects-progress-grid">
+              <div class="project-progress-card" *ngFor="let proj of projects">
+                <div class="proj-meta">
+                  <h4>{{ proj.name }}</h4>
+                  <p class="proj-loc">{{ proj.location }}</p>
+                </div>
+                <div class="proj-progress">
+                  <div class="prog-bar-header">
+                    <span>Progress</span>
+                    <span class="font-bold">{{ proj.progress }}%</span>
+                  </div>
+                  <div class="progress-bar-bg">
+                    <div class="progress-bar-fill" [style.width.%]="proj.progress"></div>
+                  </div>
+                </div>
+                <div class="proj-metrics">
+                  <span>Compliance Index: <strong [style.color]="proj.complianceScore >= 75 ? 'var(--success-green)' : 'var(--danger-red)'">{{ proj.complianceScore }}%</strong></span>
+                  <span>Blueprints: <strong>{{ proj.documentCount }}</strong></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-col-right">
+        <!-- Compliance Index Gauge -->
+        <app-chart-card title="Safety Compliance Score" chartType="gauge" [score]="kpiStats.complianceScore" [height]="220"></app-chart-card>
+
+        <!-- Unresolved violations -->
+        <div class="dashboard-card">
+          <div class="card-header">
+            <h3>Immediate Unresolved Violations</h3>
+            <a routerLink="/safety" class="view-all-link">Resolutions</a>
+          </div>
+          <div class="card-body">
+            <ul class="unresolved-violations-list">
+              <li *ngFor="let alert of safetyAlerts.slice(0, 3)" [ngClass]="alert.severity">
+                <span class="viol-title font-semibold">{{ alert.title }}</span>
+                <span class="viol-site">{{ alert.projectName }}</span>
+                <span class="viol-badge font-bold">{{ alert.riskLevel }}</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Scheduled inspection tasks -->
+        <div class="dashboard-card">
+          <div class="card-header">
+            <h3>Audit Schedule Calendar</h3>
+            <a routerLink="/schedules" class="view-all-link">Full Schedule</a>
+          </div>
+          <div class="card-body">
+            <div class="upcoming-schedules-list">
+              <div class="schedule-card-item" *ngFor="let item of schedules.slice(0, 3)">
+                <div class="schedule-type-icon" [ngClass]="item.type"></div>
+                <div class="schedule-info">
+                  <h4>{{ item.title }}</h4>
+                  <span class="sched-meta">{{ item.projectName }} | {{ item.date }} @ {{ item.time }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- ==========================================
+       FOREMAN DASHBOARD
+       ========================================== -->
+  <ng-container *ngIf="currentUser?.role === 'foreman'">
+    <!-- KPIs -->
+    <div class="kpi-grid">
+      <app-kpi-card title="Assigned Site" [value]="'Tower A'" subtitle="Sector 7G" iconType="site" cardTheme="blue"></app-kpi-card>
+      <app-kpi-card title="Today's Work Tasks" [value]="'4 / 5'" subtitle="Inspections/drills" iconType="workers" cardTheme="green"></app-kpi-card>
+      <app-kpi-card title="Scheduled Audits" [value]="schedules.length" subtitle="Next scheduled audits" iconType="inspection_pending" cardTheme="orange"></app-kpi-card>
+      <app-kpi-card title="Site Notifications" [value]="unreadCount" subtitle="Unread alerts inbox" iconType="alert" cardTheme="red"></app-kpi-card>
+    </div>
+
+    <!-- Main Foreman Grid -->
+    <div class="dashboard-grid">
+      <div class="grid-col-left">
+        <!-- Interactive Tasks Checklist -->
+        <div class="dashboard-card">
+          <div class="card-header">
+            <h3>Today's Work Task Checklist</h3>
+            <span class="sub-label">Check off completed safety tasks</span>
+          </div>
+          <div class="card-body">
+            <ul class="interactive-tasks-list">
+              <li *ngFor="let task of tasksList; let i = index" [ngClass]="{'completed': task.completed}">
+                <label [for]="'task-' + i" class="task-label-wrapper">
+                  <input type="checkbox"
+                         [id]="'task-' + i"
+                         [checked]="task.completed"
+                         (change)="toggleTask(task)"
+                         class="sr-only">
+                  <div class="checkbox-container">
+                    <div class="custom-checkbox" [ngClass]="{'checked': task.completed}">
+                      <svg *ngIf="task.completed" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    </div>
+                  </div>
+                  <div class="task-info">
+                    <span class="task-desc">{{ task.task }}</span>
+                    <span class="priority-tag" [ngClass]="task.priority">{{ task.priority | uppercase }}</span>
+                  </div>
+                </label>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Assigned projects and daily logs submission prompt -->
+        <div class="dashboard-card">
+          <div class="card-header">
+            <h3>My Daily Progress Logs</h3>
+            <a routerLink="/progress-logs" class="action-link-btn">Submit Daily Work Log</a>
+          </div>
+          <div class="card-body">
+            <div class="empty-site-state padding-normal">
+              <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+              <h4>Submit Daily Work Logs</h4>
+              <p>Keep your engineer and admin updated. Logging daily reports increases project safety indexes.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-col-right">
+        <!-- Upcoming drill schedules -->
+        <div class="dashboard-card">
+          <div class="card-header">
+            <h3>Upcoming Drills & Inspections</h3>
+            <a routerLink="/schedules" class="view-all-link">Calendar</a>
+          </div>
+          <div class="card-body">
+            <div class="upcoming-schedules-list">
+              <div class="schedule-card-item" *ngFor="let item of schedules.slice(0, 3)">
+                <div class="schedule-type-icon" [ngClass]="item.type"></div>
+                <div class="schedule-info">
+                  <h4>{{ item.title }}</h4>
+                  <span class="sched-meta">{{ item.date }} @ {{ item.time }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Alerts notifications inbox -->
+        <div class="dashboard-card">
+          <div class="card-header">
+            <h3>Hazards & Critical Safety Alerts</h3>
+            <a routerLink="/notifications" class="view-all-link">Inbox</a>
+          </div>
+          <div class="card-body">
+            <ul class="recent-notifications-list font-medium">
+              <li *ngFor="let not of notificationsList.slice(0, 3)" [ngClass]="{'unread': !not.isRead}">
+                <span class="not-title font-semibold" style="color: var(--danger-red);">{{ not.title }}</span>
+                <p class="not-desc">{{ not.content }}</p>
+                <span class="not-time">{{ not.timestamp | date:'short' }}</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+</ng-container>
+
+</div>

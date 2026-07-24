@@ -1,0 +1,95 @@
+.pagination-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 18px;
+  background-color: var(--card-bg, #ffffff);
+  border-top: 1px solid var(--border-color, #e2e8f0);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.pagination-info {
+  font-size: 13px;
+  color: var(--text-secondary, #64748b);
+}
+
+.range-bold {
+  font-weight: 700;
+  color: var(--text-primary, #334155);
+}
+
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.page-number-btn, .control-btn {
+  background-color: transparent;
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--text-primary, #475569);
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+  box-sizing: border-box;
+}
+
+.page-number-btn:hover, .control-btn:hover:not([disabled]) {
+  background-color: var(--bg-light, #f8fafc);
+  border-color: var(--text-secondary, #cbd5e1);
+}
+
+.page-number-btn.active {
+  background-color: #2563eb;
+  color: #ffffff;
+  border-color: #2563eb;
+}
+
+.control-btn[disabled] {
+  opacity: 0.4;
+  cursor: not-allowed;
+  background-color: var(--bg-light, #f8fafc);
+}
+
+/* Dark mode overrides */
+:host-context(.dark-theme) .pagination-container {
+  background-color: #1e293b;
+  border-top-color: #334155;
+}
+
+:host-context(.dark-theme) .pagination-info {
+  color: #94a3b8;
+}
+
+:host-context(.dark-theme) .range-bold {
+  color: #f8fafc;
+}
+
+:host-context(.dark-theme) .page-number-btn, :host-context(.dark-theme) .control-btn {
+  border-color: #334155;
+  color: #cbd5e1;
+}
+
+:host-context(.dark-theme) .page-number-btn:hover, :host-context(.dark-theme) .control-btn:hover:not([disabled]) {
+  background-color: #0f172a;
+  border-color: #475569;
+}
+
+:host-context(.dark-theme) .page-number-btn.active {
+  background-color: #3b82f6;
+  border-color: #3b82f6;
+  color: #ffffff;
+}
+
+:host-context(.dark-theme) .control-btn[disabled] {
+  background-color: #1e293b;
+}

@@ -1,0 +1,20 @@
+<div class="app-layout-shell" [ngClass]="{'sidebar-collapsed': isSidebarCollapsed}">
+  <!-- Collapsible Left Navigation Sidebar -->
+  <app-sidebar [isCollapsed]="isSidebarCollapsed" 
+               [isMobileOpen]="isMobileSidebarOpen"
+               (toggleCollapse)="toggleSidebar()"
+               (closeMobile)="closeMobileSidebar()"></app-sidebar>
+               
+  <!-- Right Dashboard Content Column -->
+  <div class="content-wrapper">
+    <app-header (toggleSidebar)="toggleSidebar()"
+                (toggleMobileSidebar)="toggleMobileSidebar()"></app-header>
+                
+    <main class="main-content-viewport">
+      <!-- Feature views render here -->
+      <router-outlet></router-outlet>
+    </main>
+    
+    <app-footer></app-footer>
+  </div>
+</div>

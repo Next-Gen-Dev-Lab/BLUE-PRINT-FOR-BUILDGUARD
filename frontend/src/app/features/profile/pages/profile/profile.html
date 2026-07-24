@@ -1,0 +1,121 @@
+<div class="profile-viewport" *ngIf="currentUser">
+  <div class="profile-header-row">
+    <h2>My Operator Profile</h2>
+    <p>View your professional credentials and adjust account preferences.</p>
+  </div>
+
+  <div class="profile-main-grid">
+    <!-- Left Column: Details Card (Editable) -->
+    <div class="profile-card details-card">
+      <div class="profile-avatar-row">
+        <div class="large-avatar">{{ getInitials(currentUser.name) }}</div>
+        <div class="avatar-meta">
+          <h3>{{ currentUser.name }}</h3>
+          <span class="role-pill">{{ getUserRoleLabel(currentUser.role) | uppercase }}</span>
+          <span class="company-text">{{ currentUser.companyName }}</span>
+        </div>
+        <button class="edit-btn" (click)="toggleEdit()" type="button">
+          {{ isEditing ? 'Cancel' : 'Edit Profile' }}
+        </button>
+      </div>
+
+      <form [formGroup]="profileForm" (ngSubmit)="saveProfile()" class="profile-form">
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="profName">Full Name</label>
+            <div class="input-wrapper" [ngClass]="{'has-error': profileForm.get('name')?.touched && profileForm.get('name')?.invalid}">
+              <input type="text" id="profName" formControlName="name" [readonly]="!isEditing" [ngClass]="{'readonly-field': !isEditing}">
+            </div>
+            <span class="validation-message" *ngIf="profileForm.get('name')?.touched && profileForm.get('name')?.invalid">
+              Full name is required
+            </span>
+          </div>
+
+          <div class="form-group">
+            <label for="profPhone">Mobile Number</label>
+            <div class="input-wrapper" [ngClass]="{'has-error': profileForm.get('phone')?.touched && profileForm.get('phone')?.invalid}">
+              <input type="tel" id="profPhone" formControlName="phone" [readonly]="!isEditing" [ngClass]="{'readonly-field': !isEditing}">
+            </div>
+            <span class="validation-message" *ngIf="profileForm.get('phone')?.touched && profileForm.get('phone')?.invalid">
+              Valid phone number is required
+            </span>
+          </div>
+
+          <div class="form-group">
+            <label for="profEmail">Work Email</label>
+            <input type="email" id="profEmail" formControlName="email" readonly class="readonly-field">
+          </div>
+
+          <div class="form-group">
+            <label for="profEmpId">Employee ID</label>
+            <input type="text" id="profEmpId" formControlName="employeeId" readonly class="readonly-field font-mono">
+          </div>
+
+          <div class="form-group">
+            <label for="profComp">Company</label>
+            <input type="text" id="profComp" formControlName="companyName" readonly class="readonly-field">
+          </div>
+
+          <div class="form-group">
+            <label for="profRole">Platform Role</label>
+            <input type="text" id="profRole" formControlName="role" readonly class="readonly-field font-bold">
+          </div>
+        </div>
+
+        <button type="submit" class="save-profile-btn" *ngIf="isEditing" [disabled]="profileForm.invalid || isUpdatingProfile">
+          <span *ngIf="!isUpdatingProfile">Save Changes</span>
+          <app-loading-spinner *ngIf="isUpdatingProfile" size="sm" color="white"></app-loading-spinner>
+        </button>
+      </form>
+    </div>
+
+    <!-- Right Column: Change Password Card -->
+    <div class="profile-card password-card">
+      <h5>Security & Password Settings</h5>
+      <p class="section-desc">Keep your account secure by rotating your password regularly.</p>
+      
+      <form [formGroup]="passwordForm" (ngSubmit)="savePassword()" class="password-form">
+        <div class="form-group">
+          <label for="currPass">Current Password</label>
+          <div class="input-wrapper" [ngClass]="{'has-error': passwordForm.get('currentPassword')?.touched && passwordForm.get('currentPassword')?.invalid}">
+            <input type="password" id="currPass" formControlName="currentPassword" placeholder="Enter current password">
+          </div>
+          <span class="validation-message" *ngIf="passwordForm.get('currentPassword')?.touched && passwordForm.get('currentPassword')?.hasError('required')">
+            Current password is required
+          </span>
+        </div>
+
+        <div class="form-group">
+          <label for="newPass">New Password</label>
+          <div class="input-wrapper" [ngClass]="{'has-error': passwordForm.get('newPassword')?.touched && passwordForm.get('newPassword')?.invalid}">
+            <input type="password" id="newPass" formControlName="newPassword" placeholder="Min. 6 characters">
+          </div>
+          <span class="validation-message" *ngIf="passwordForm.get('newPassword')?.touched && passwordForm.get('newPassword')?.hasError('required')">
+            New password is required
+          </span>
+          <span class="validation-message" *ngIf="passwordForm.get('newPassword')?.touched && passwordForm.get('newPassword')?.hasError('minlength')">
+            Password must be at least 6 characters
+          </span>
+        </div>
+
+        <div class="form-group">
+          <label for="confNewPass">Confirm New Password</label>
+          <div class="input-wrapper" [ngClass]="{'has-error': (passwordForm.get('confirmNewPassword')?.touched && passwordForm.get('confirmNewPassword')?.invalid) || (passwordForm.touched && passwordForm.hasError('mismatch'))}">
+            <input type="password" id="confNewPass" formControlName="confirmNewPassword" placeholder="Repeat new password">
+          </div>
+          <span class="validation-message" *ngIf="passwordForm.get('confirmNewPassword')?.touched && passwordForm.get('confirmNewPassword')?.hasError('required')">
+            Confirm password is required
+          </span>
+          <span class="validation-message" *ngIf="passwordForm.touched && passwordForm.hasError('mismatch') && !passwordForm.get('confirmNewPassword')?.hasError('required')">
+            New passwords do not match
+          </span>
+        </div>
+
+        <button type="submit" class="save-password-btn" [disabled]="passwordForm.invalid || isUpdatingPassword">
+          <span *ngIf="!isUpdatingPassword">Update Password</span>
+          <app-loading-spinner *ngIf="isUpdatingPassword" size="sm" color="white"></app-loading-spinner>
+        </button>
+      </form>
+    </div>
+  </div>
+</div>

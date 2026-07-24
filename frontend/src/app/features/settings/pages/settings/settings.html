@@ -1,0 +1,146 @@
+<div class="settings-viewport">
+  <div class="settings-header-row">
+    <h2>Platform Configurations</h2>
+    <p>Adjust visual parameters, configure warning alerts, and manage developer keys.</p>
+  </div>
+
+  <div class="settings-grid-layout">
+    <!-- Left Section: Themes & Notifications -->
+    <div class="settings-column">
+      
+      <!-- Theme Selection Card -->
+      <div class="settings-card theme-card">
+        <h5>1. User Interface Theme</h5>
+        <p class="card-desc">Configure the application style mode for high visibility on site grids.</p>
+        
+        <div class="theme-selectors-row">
+          <button class="theme-select-btn" [ngClass]="{'active': !isDarkTheme}" (click)="!isDarkTheme ? null : toggleTheme()">
+            <div class="theme-preview light">
+              <div class="bar"></div>
+              <div class="circle"></div>
+            </div>
+            <span>Daylight Light Mode</span>
+          </button>
+          
+          <button class="theme-select-btn" [ngClass]="{'active': isDarkTheme}" (click)="isDarkTheme ? null : toggleTheme()">
+            <div class="theme-preview dark">
+              <div class="bar"></div>
+              <div class="circle"></div>
+            </div>
+            <span>Midnight Dark Mode</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Notifications Toggles -->
+      <div class="settings-card notifications-card">
+        <h5>2. Safety Alerts & Notifications</h5>
+        <p class="card-desc">Choose which telemetry categories trigger active warning logs.</p>
+        
+        <div class="toggles-stack">
+          <!-- Toggle 1: Email -->
+          <div class="toggle-row">
+            <div class="toggle-meta">
+              <span class="toggle-title font-bold">Email Summaries</span>
+              <p class="toggle-desc">Receive weekly digests of site audits, incident rates, and closures.</p>
+            </div>
+            <label class="switch">
+              <span class="sr-only">Toggle Email Summaries</span>
+              <input type="checkbox" [(ngModel)]="emailAlerts">
+              <span class="slider"></span>
+            </label>
+          </div>
+
+          <!-- Toggle 2: SMS -->
+          <div class="toggle-row">
+            <div class="toggle-meta">
+              <span class="toggle-title font-bold">SMS Incident Alerts</span>
+              <p class="toggle-desc">Receive real-time text alerts when Critical violations are logged on active sites.</p>
+            </div>
+            <label class="switch">
+              <span class="sr-only">Toggle SMS Incident Alerts</span>
+              <input type="checkbox" [(ngModel)]="smsAlerts">
+              <span class="slider"></span>
+            </label>
+          </div>
+
+          <!-- Toggle 3: Push -->
+          <div class="toggle-row">
+            <div class="toggle-meta">
+              <span class="toggle-title font-bold">Desktop Browser Notifications</span>
+              <p class="toggle-desc">Permit the cockpit shell to spawn alert banners on active browsers.</p>
+            </div>
+            <label class="switch">
+              <span class="sr-only">Toggle Desktop Browser Notifications</span>
+              <input type="checkbox" [(ngModel)]="pushAlerts">
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <button class="save-prefs-btn" (click)="savePreferences()" [disabled]="isSaving">
+          <span *ngIf="!isSaving">Save Configurations</span>
+          <app-loading-spinner *ngIf="isSaving" size="sm" color="white"></app-loading-spinner>
+        </button>
+      </div>
+    </div>
+
+    <!-- Right Section: Integrations & Webhooks -->
+    <div class="settings-column">
+      
+      <!-- Integrations card -->
+      <div class="settings-card integrations-card">
+        <h5>3. Developers API Access</h5>
+        <p class="card-desc">Link third-party devices, IoT sensors, or AWS pipelines directly via REST.</p>
+        
+        <div class="api-token-container">
+          <label for="apiTokenField">Project Live Key Token</label>
+          <div class="token-input-row">
+            <input id="apiTokenField" type="text" [value]="apiKey" readonly class="token-field font-mono">
+            <button class="copy-token-btn" (click)="copyApiKey()">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="webhook-container">
+          <label for="webHookUrl">Incident Webhook Subscription URL</label>
+          <div class="webhook-input-row">
+            <input type="url" id="webHookUrl" [(ngModel)]="webhookUrl" placeholder="https://api.yourcompany.com/webhooks" class="webhook-field">
+            <button class="save-webhook-btn" (click)="saveWebhook()">
+              Save Endpoint
+            </button>
+          </div>
+          <span class="saved-badge" *ngIf="isWebhookSaved">Webhook Registered</span>
+        </div>
+      </div>
+
+      <!-- About Info card -->
+      <div class="settings-card about-card">
+        <h5>BuildGuard Core v1.0.0-Beta</h5>
+        <p class="about-desc">Final Year Engineering Project Prototype. Frontend compiled in Angular 20, designed with premium ACC and Procore themed styling frameworks. Systems online.</p>
+        <div class="system-statuses">
+          <div class="status-item">
+            <span class="indicator green"></span>
+            <span>REST API Mock Service Online</span>
+          </div>
+          <div class="status-item">
+            <span class="indicator green"></span>
+            <span>AI Safety Model Sync Online</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Database Diagnostics card -->
+      <div class="settings-card diagnostics-card" style="margin-top: 16px;">
+        <h5>4. System Maintenance & Reset</h5>
+        <p class="card-desc" style="font-size: 12px; color: var(--text-secondary, #64748b); margin-bottom: 12px;">Clear local browser database caches and restore default safety logs, blueprints, and timeline metrics.</p>
+        <button class="reset-cache-btn" (click)="resetMockCache()" [disabled]="isSaving" style="background-color: #ef4444; color: #ffffff; border: none; border-radius: 8px; padding: 10px 16px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 13px; transition: background-color 0.2s; width: 100%;">
+          <svg *ngIf="!isSaving" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+          <span *ngIf="!isSaving">Reset & Seed Mock Databases</span>
+          <app-loading-spinner *ngIf="isSaving" size="sm" color="white"></app-loading-spinner>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

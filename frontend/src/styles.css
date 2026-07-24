@@ -1,0 +1,148 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+/* Global Design Tokens & Variables */
+:root {
+  /* Colors (Light Theme Defaults) */
+  --bg-primary: #f8fafc;
+  --bg-light: #f1f5f9;
+  --card-bg: #ffffff;
+  
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --border-color: #cbd5e1;
+  
+  --primary-blue: #2563eb;
+  --primary-hover: #1d4ed8;
+  --primary-glow: rgba(37, 99, 235, 0.15);
+  
+  --accent-orange: #f97316;
+  --accent-orange-hover: #ea580c;
+  --accent-glow: rgba(249, 115, 22, 0.15);
+  
+  --success-green: #16a34a; /* Secondary color from theme */
+  --success-bg: #dcfce7;
+  --danger-red: #ef4444;
+  --danger-bg: #fee2e2;
+  --warning-yellow: #f59e0b;
+  --warning-bg: #fef3c7;
+  
+  /* Layout settings */
+  --border-radius: 16px;
+  --shadow-soft: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05), 0 10px 15px -3px rgb(0 0 0 / 0.03);
+  --sidebar-dark: #0f172a;
+  
+  /* Fonts */
+  --font-family-sans: 'Inter', sans-serif;
+  --font-family-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+}
+
+/* Midnight Dark Theme Overrides */
+body.dark-theme {
+  --bg-primary: #0b0f19;
+  --bg-light: #0f172a;
+  --card-bg: #1e293b;
+  
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --border-color: #334155;
+  
+  --primary-blue: #3b82f6;
+  --primary-hover: #2563eb;
+  --primary-glow: rgba(59, 130, 246, 0.2);
+  
+  --accent-orange: #f97316;
+  --accent-orange-hover: #fb923c;
+  --accent-glow: rgba(249, 115, 22, 0.2);
+  
+  --success-green: #34d399;
+  --success-bg: rgba(16, 185, 129, 0.15);
+  --danger-red: #f87171;
+  --danger-bg: rgba(239, 68, 68, 0.15);
+  --warning-yellow: #fbbf24;
+  --warning-bg: rgba(245, 158, 11, 0.15);
+}
+
+/* Reset and Layout bases */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-family-sans);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--text-primary);
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+/* Custom Scrollbars styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
+}
+
+/* Common form error styles */
+.has-error input, .has-error select, .has-error textarea {
+  border-color: var(--danger-red) !important;
+}
+
+.validation-message {
+  font-size: 11px;
+  color: var(--danger-red);
+  font-weight: 700;
+  margin-top: 4px;
+}
+
+/* Micro animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Print Overrides */
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}

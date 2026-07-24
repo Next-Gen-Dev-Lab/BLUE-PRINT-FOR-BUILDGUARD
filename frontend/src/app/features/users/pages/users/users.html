@@ -1,0 +1,233 @@
+<div class="crud-container animate-fade-in">
+  <!-- Title and Actions Header -->
+  <div class="crud-header">
+    <div class="header-left">
+      <h2>Employee Directories & User Accounts</h2>
+      <p>Manage safety administrators, project engineers, site foremen, and inspectors.</p>
+    </div>
+    <button class="primary-btn" (click)="openAddModal()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+      Add Employee
+    </button>
+  </div>
+
+  <!-- Filter & Search Toolbar -->
+  <div class="crud-toolbar">
+    <div class="search-box">
+      <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+      <label for="usersSearchQuery" class="sr-only">Search employees</label>
+      <input id="usersSearchQuery" type="text" [(ngModel)]="searchQuery" (ngModelChange)="applyFilters()" placeholder="Search by name, employee ID, company...">
+    </div>
+    
+    <div class="filters-box">
+      <label for="usersRoleFilter" class="sr-only">Filter by Role</label>
+      <select id="usersRoleFilter" [(ngModel)]="roleFilter" (change)="applyFilters()" class="filter-select">
+        <option value="">All Roles</option>
+        <option *ngFor="let opt of roleOptions" [value]="opt.value">{{ opt.label }}</option>
+      </select>
+
+      <label for="usersStatusFilter" class="sr-only">Filter by Status</label>
+      <select id="usersStatusFilter" [(ngModel)]="statusFilter" (change)="applyFilters()" class="filter-select">
+        <option value="">All Statuses</option>
+        <option *ngFor="let opt of statusOptions" [value]="opt.value">{{ opt.label }}</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Responsive Table Content -->
+  <div class="crud-card">
+    <div class="table-loading-overlay" *ngIf="isLoading">
+      <app-loading-spinner></app-loading-spinner>
+    </div>
+
+    <div class="table-wrapper scrollable" *ngIf="!isLoading">
+      <table class="crud-table" *ngIf="filteredUsers.length > 0; else emptyState" aria-label="List of registered team members with employee ID, name, email, role, phone, and status">
+        <thead>
+          <tr>
+            <th (click)="changeSort('employeeId')" (keydown.enter)="changeSort('employeeId')" (keydown.space)="changeSort('employeeId'); $event.preventDefault()" tabindex="0" class="sortable">
+              Employee ID
+              <span class="sort-icon" *ngIf="sortBy === 'employeeId'">{{ sortOrder === 'asc' ? '▲' : '▼' }}</span>
+            </th>
+            <th (click)="changeSort('name')" (keydown.enter)="changeSort('name')" (keydown.space)="changeSort('name'); $event.preventDefault()" tabindex="0" class="sortable">
+              Name
+              <span class="sort-icon" *ngIf="sortBy === 'name'">{{ sortOrder === 'asc' ? '▲' : '▼' }}</span>
+            </th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Company</th>
+            <th (click)="changeSort('role')" (keydown.enter)="changeSort('role')" (keydown.space)="changeSort('role'); $event.preventDefault()" tabindex="0" class="sortable">
+              Role
+              <span class="sort-icon" *ngIf="sortBy === 'role'">{{ sortOrder === 'asc' ? '▲' : '▼' }}</span>
+            </th>
+            <th (click)="changeSort('status')" (keydown.enter)="changeSort('status')" (keydown.space)="changeSort('status'); $event.preventDefault()" tabindex="0" class="sortable">
+              Status
+              <span class="sort-icon" *ngIf="sortBy === 'status'">{{ sortOrder === 'asc' ? '▲' : '▼' }}</span>
+            </th>
+            <th class="actions-header">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let user of paginatedUsers">
+            <td class="font-semibold">{{ user.employeeId }}</td>
+            <td class="font-bold">{{ user.name }}</td>
+            <td>{{ user.email }}</td>
+            <td>{{ user.phone }}</td>
+            <td>{{ user.companyName }}</td>
+            <td>
+              <span class="role-badge" [ngClass]="user.role">
+                {{ getUserRoleLabel(user.role) }}
+              </span>
+            </td>
+            <td>
+              <button class="status-toggle-btn" (click)="toggleUserStatus(user)" title="Toggle Account Status">
+                <span class="status-dot" [ngClass]="user.status"></span>
+                {{ user.status === 'active' ? 'Active' : 'Pending' }}
+              </button>
+            </td>
+            <td class="actions-cell">
+              <button class="action-btn edit-btn" (click)="openEditModal(user)" aria-label="Edit User">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+              </button>
+              <button class="action-btn delete-btn" (click)="openDeleteConfirm(user)" aria-label="Delete User">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Empty State Template -->
+      <ng-template #emptyState>
+        <div class="empty-state-container">
+          <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+          <h4>No Employees Found</h4>
+          <p>No user accounts matched your search queries or selected filters.</p>
+        </div>
+      </ng-template>
+    </div>
+
+    <!-- Table Pagination -->
+    <div class="table-pagination" *ngIf="!isLoading && filteredUsers.length > 0">
+      <app-pagination
+        [totalItems]="filteredUsers.length"
+        [itemsPerPage]="itemsPerPage"
+        [currentPage]="currentPage"
+        (pageChange)="onPageChange($event)">
+      </app-pagination>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       Add / Edit User Modal Dialog
+       ========================================== -->
+  <div class="modal-overlay" *ngIf="isAddEditModalOpen">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>{{ selectedUser ? 'Edit Employee Profile' : 'Register New Employee' }}</h3>
+        <button class="close-btn" (click)="closeAddEditModal()">×</button>
+      </div>
+
+      <form [formGroup]="userForm" (ngSubmit)="submitForm()">
+        <div class="modal-body">
+          <!-- Name -->
+          <div class="form-group" [ngClass]="{'has-error': userForm.get('name')?.touched && userForm.get('name')?.invalid}">
+            <label for="name">Employee Full Name *</label>
+            <input type="text" id="name" formControlName="name" placeholder="e.g. John Doe">
+            <span class="validation-message" *ngIf="userForm.get('name')?.touched && userForm.get('name')?.invalid">
+              Name is required (min 3 characters).
+            </span>
+          </div>
+
+          <div class="form-row">
+            <!-- Employee ID -->
+            <div class="form-group" [ngClass]="{'has-error': userForm.get('employeeId')?.touched && userForm.get('employeeId')?.invalid}">
+              <label for="employeeId">Employee ID Code *</label>
+              <input type="text" id="employeeId" formControlName="employeeId" placeholder="EMP-1234">
+              <span class="validation-message" *ngIf="userForm.get('employeeId')?.touched && userForm.get('employeeId')?.invalid">
+                Must follow 'EMP-####' pattern.
+              </span>
+            </div>
+
+            <!-- Company Name -->
+            <div class="form-group" [ngClass]="{'has-error': userForm.get('companyName')?.touched && userForm.get('companyName')?.invalid}">
+              <label for="companyName">Company / Division *</label>
+              <input type="text" id="companyName" formControlName="companyName">
+              <span class="validation-message" *ngIf="userForm.get('companyName')?.touched && userForm.get('companyName')?.invalid">
+                Company name is required.
+              </span>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <!-- Email -->
+            <div class="form-group" [ngClass]="{'has-error': userForm.get('email')?.touched && userForm.get('email')?.invalid}">
+              <label for="email">Work Email *</label>
+              <input type="email" id="email" formControlName="email" placeholder="john.doe@company.com">
+              <span class="validation-message" *ngIf="userForm.get('email')?.touched && userForm.get('email')?.invalid">
+                Provide a valid email address.
+              </span>
+            </div>
+
+            <!-- Phone -->
+            <div class="form-group" [ngClass]="{'has-error': userForm.get('phone')?.touched && userForm.get('phone')?.invalid}">
+              <label for="phone">Mobile Phone *</label>
+              <input type="text" id="phone" formControlName="phone" placeholder="+1 (555) 000-0000">
+              <span class="validation-message" *ngIf="userForm.get('phone')?.touched && userForm.get('phone')?.invalid">
+                Valid contact number is required.
+              </span>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <!-- Role -->
+            <div class="form-group">
+              <label for="role">Assigned Authorization Role *</label>
+              <select id="role" formControlName="role">
+                <option *ngFor="let opt of roleOptions" [value]="opt.value">{{ opt.label }}</option>
+              </select>
+            </div>
+
+            <!-- Status -->
+            <div class="form-group">
+              <label for="status">Account Activation Status *</label>
+              <select id="status" formControlName="status">
+                <option *ngFor="let opt of statusOptions" [value]="opt.value">{{ opt.label }}</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="secondary-btn" (click)="closeAddEditModal()" [disabled]="isSubmitting">Cancel</button>
+          <button type="submit" class="primary-btn" [disabled]="isSubmitting">
+            <span *ngIf="isSubmitting">Saving Profile...</span>
+            <span *ngIf="!isSubmitting">Save Employee</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       Delete Confirmation Dialog
+       ========================================== -->
+  <div class="modal-overlay" *ngIf="isDeleteConfirmOpen">
+    <div class="modal-card small-modal animate-slide-up">
+      <div class="modal-header header-danger">
+        <h3>Delete Employee Account</h3>
+        <button class="close-btn" (click)="closeDeleteConfirm()">×</button>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to permanently delete the profile database record for <strong>{{ selectedUser?.name }}</strong>?</p>
+        <p class="text-danger-disclaimer">This action cannot be undone and will revoke all site access privileges.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="secondary-btn" (click)="closeDeleteConfirm()" [disabled]="isSubmitting">Cancel</button>
+        <button type="button" class="danger-btn" (click)="confirmDelete()" [disabled]="isSubmitting">
+          <span *ngIf="isSubmitting">Deleting Record...</span>
+          <span *ngIf="!isSubmitting">Delete Account</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
