@@ -34,15 +34,13 @@ services:
       - "8080:8080"
     environment:
       # AWS RDS MySQL Credentials
-      SPRING_DATASOURCE_URL: jdbc:mysql://${RDS_HOSTNAME}:${RDS_PORT}/${RDS_DB_NAME}?useSSL=true&requireSSL=false&serverTimezone=UTC
+      SPRING_DATASOURCE_URL: jdbc:mysql://${RDS_HOSTNAME}:${RDS_PORT}/${RDS_DB_NAME}
       SPRING_DATASOURCE_USERNAME: ${RDS_USERNAME}
       SPRING_DATASOURCE_PASSWORD: ${RDS_PASSWORD}
-      
+
       # AWS S3 Storage Credentials
       AWS_S3_BUCKET: ${AWS_S3_BUCKET_NAME}
       AWS_REGION: ${AWS_REGION}
-      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
-      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
 
       # AI Services Routing
       AI_GATEWAY_URL: http://ai-agent-gateway:18789

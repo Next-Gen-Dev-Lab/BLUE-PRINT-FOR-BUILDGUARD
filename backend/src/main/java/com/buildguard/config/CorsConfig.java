@@ -16,10 +16,10 @@ public class CorsConfig {
 
         CorsConfiguration config = new CorsConfiguration();
 
-        // No allowed origins configured yet.
-        // Add your frontend origin later, for example:
-        // config.setAllowedOrigins(List.of("http://localhost:4200"));
+        // Allow all frontend origins
+        config.setAllowedOriginPatterns(List.of("*"));
 
+        // Allow all HTTP methods
         config.setAllowedMethods(List.of(
                 "GET",
                 "POST",
@@ -28,8 +28,10 @@ public class CorsConfig {
                 "OPTIONS"
         ));
 
+        // Allow all headers
         config.setAllowedHeaders(List.of("*"));
 
+        // JWT authentication doesn't require cookies
         config.setAllowCredentials(false);
 
         UrlBasedCorsConfigurationSource source =
