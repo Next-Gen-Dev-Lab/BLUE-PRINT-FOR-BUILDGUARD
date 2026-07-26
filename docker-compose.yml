@@ -1,0 +1,66 @@
+version: '3.8'
+
+networks:
+  buildguard-net:
+    driver: bridge
+
+services:
+  # -----------------------------------------------------------------
+  # 1. Frontend Service (React - Foreman & Inspection Application)
+  # -----------------------------------------------------------------
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: buildguard-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    environment:
+      - REACT_APP_BACKEND_URL=http://localhost:8080
+    networks:
+      - buildguard-net
+
+  # -----------------------------------------------------------------
+  # 2. Core Backend Service (Spring Boot + LangChain4j Engine)
+  # -----------------------------------------------------------------
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: buildguard-backend
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      # AWS RDS MySQL Credentials
+      SPRING_DATASOURCE_URL: jdbc:mysql://${RDS_HOSTNAME}:${RDS_PORT}/${RDS_DB_NAME}?useSSL=true&requireSSL=false&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: ${RDS_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${RDS_PASSWORD}
+      
+      # AWS S3 Storage Credentials
+      AWS_S3_BUCKET: ${AWS_S3_BUCKET_NAME}
+      AWS_REGION: ${AWS_REGION}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+
+      # AI Services Routing
+      AI_GATEWAY_URL: http://ai-agent-gateway:18789
+      NOUS_HERMES_API_KEY: ${NOUS_HERMES_API_KEY}
+    networks:
+      - buildguard-net
+
+  # -----------------------------------------------------------------
+  # 3. AI Safety Agent Gateway (OpenClaw / Agent Execution)
+  # -----------------------------------------------------------------
+  ai-agent-gateway:
+    image: openclaw/openclaw:latest
+    container_name: buildguard-ai-gateway
+    restart: unless-stopped
+    ports:
+      - "18789:18789"
+    environment:
+      - OPENCLAW_ENV=production
+      - NOUS_HERMES_ENDPOINT=${NOUS_HERMES_ENDPOINT}
+    networks:
+      - buildguard-net
