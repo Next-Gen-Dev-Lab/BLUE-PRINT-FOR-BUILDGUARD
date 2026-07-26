@@ -23,12 +23,12 @@ public class ProjectController {
     public ProjectResponse createProject(@RequestBody ProjectRequest request) {
         return projectService.createProject(request);
     }
-    @PreAuthorize("hasAnyRole('ADMIN','PROJECT_ENGINEER')")
+    @PreAuthorize("hasAnyRole('ADMIN','PROJECT_ENGINEER','FOREMAN')")
     @GetMapping
     public List<ProjectResponse> getAllProjects() {
         return projectService.getAllProjects();
     }
-    @PreAuthorize("hasAnyRole('ADMIN','PROJECT_ENGINEER')")
+    @PreAuthorize("hasAnyRole('ADMIN','PROJECT_ENGINEER','FOREMAN')")
     @GetMapping("/{id}")
     public ProjectResponse getProjectById(@PathVariable Long id) {
         return projectService.getProjectById(id);
