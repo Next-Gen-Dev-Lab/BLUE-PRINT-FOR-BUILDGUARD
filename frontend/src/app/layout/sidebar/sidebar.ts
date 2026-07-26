@@ -58,7 +58,7 @@ export class SidebarComponent implements OnInit {
     if (!this.currentUser) return false;
     const role = this.currentUser.role;
     if (role === 'admin') return true;
-    if (role === 'engineer') {
+    if (role === 'engineer' || role === 'inspector') {
       const allowed = ['dashboard', 'projects', 'blueprints', 'progress-logs', 'inspections', 'safety', 'schedules', 'notifications', 'ai-review', 'reports', 'email', 'settings'];
       return allowed.includes(menuItem);
     }

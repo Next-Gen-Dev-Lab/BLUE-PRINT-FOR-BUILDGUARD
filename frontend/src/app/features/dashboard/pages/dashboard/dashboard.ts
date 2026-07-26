@@ -114,15 +114,30 @@ export class DashboardComponent implements OnInit {
   loadDashboardData(): void {
     this.isLoading = true;
 
+    const userJson = localStorage.getItem('bg_current_user');
+    const user = this.currentUser || (userJson ? JSON.parse(userJson) : null);
+    const role = user ? user.role : '';
+
+    const isAdmin = role === 'admin';
+    const isEngineerOrInspector = role === 'engineer' || role === 'inspector';
+
     // Load initial sets in parallel using forkJoin
     const requests = {
       projects: this.projectService.getProjects().pipe(catchError(() => of([]))),
-      inspections: this.inspectionService.getInspections().pipe(catchError(() => of([]))),
-      violations: this.safetyViolationService.getSafetyViolations().pipe(catchError(() => of([]))),
+      inspections: (isAdmin || isEngineerOrInspector)
+        ? this.inspectionService.getInspections().pipe(catchError(() => of([])))
+        : of([]),
+      violations: (isAdmin || isEngineerOrInspector)
+        ? this.safetyViolationService.getSafetyViolations().pipe(catchError(() => of([])))
+        : of([]),
       schedules: this.scheduleService.getSchedules().pipe(catchError(() => of([]))),
       notifications: this.notificationService.getNotifications().pipe(catchError(() => of([]))),
-      users: this.userService.getUsers().pipe(catchError(() => of([]))),
-      blueprints: this.blueprintService.getBlueprints().pipe(catchError(() => of([])))
+      users: isAdmin
+        ? this.userService.getUsers().pipe(catchError(() => of([])))
+        : of([]),
+      blueprints: (isAdmin || isEngineerOrInspector)
+        ? this.blueprintService.getBlueprints().pipe(catchError(() => of([])))
+        : of([])
     };
 
     forkJoin(requests).subscribe({

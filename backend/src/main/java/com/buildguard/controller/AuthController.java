@@ -16,7 +16,7 @@ import com.buildguard.security.JwtService;
 
 @RestController
 @RequestMapping("/api/auth")
-
+@CrossOrigin(origins = "*")
 public class AuthController {
 
     @Autowired

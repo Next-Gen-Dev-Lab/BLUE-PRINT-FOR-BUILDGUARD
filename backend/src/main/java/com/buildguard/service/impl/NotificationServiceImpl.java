@@ -2,13 +2,13 @@ package com.buildguard.service.impl;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
 import com.buildguard.dto.NotificationResponseDto;
 import com.buildguard.entity.Notification;
 import com.buildguard.entity.User;
-import com.buildguard.exception.ResourceNotFoundException;
 import com.buildguard.mapper.NotificationMapper;
 import com.buildguard.repository.NotificationRepository;
 import com.buildguard.repository.UserRepository;
@@ -16,9 +16,6 @@ import com.buildguard.service.NotificationService;
 
 @Service
 public class NotificationServiceImpl implements NotificationService {
-
-    private static final String USER_NOT_FOUND = "User not found";
-    private static final String NOTIFICATION_NOT_FOUND = "Notification not found";
 
     private final NotificationRepository notificationRepository;
     private final UserRepository userRepository;
@@ -42,8 +39,7 @@ public class NotificationServiceImpl implements NotificationService {
             Long userId) {
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(USER_NOT_FOUND));
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
         Notification notification = new Notification();
 
@@ -63,15 +59,14 @@ public class NotificationServiceImpl implements NotificationService {
         return notificationRepository.findAll()
                 .stream()
                 .map(notificationMapper::toDto)
-                .toList();
+                .collect(Collectors.toList());
     }
 
     @Override
     public NotificationResponseDto getNotificationById(Long id) {
 
         Notification notification = notificationRepository.findById(id)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(NOTIFICATION_NOT_FOUND));
+                .orElseThrow(() -> new RuntimeException("Notification not found"));
 
         return notificationMapper.toDto(notification);
     }
@@ -82,15 +77,14 @@ public class NotificationServiceImpl implements NotificationService {
         return notificationRepository.findByUserId(userId)
                 .stream()
                 .map(notificationMapper::toDto)
-                .toList();
+                .collect(Collectors.toList());
     }
 
     @Override
     public NotificationResponseDto markAsRead(Long id) {
 
         Notification notification = notificationRepository.findById(id)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(NOTIFICATION_NOT_FOUND));
+                .orElseThrow(() -> new RuntimeException("Notification not found"));
 
         notification.setIsRead(true);
 
@@ -101,8 +95,7 @@ public class NotificationServiceImpl implements NotificationService {
     public void deleteNotification(Long id) {
 
         Notification notification = notificationRepository.findById(id)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(NOTIFICATION_NOT_FOUND));
+                .orElseThrow(() -> new RuntimeException("Notification not found"));
 
         notificationRepository.delete(notification);
     }

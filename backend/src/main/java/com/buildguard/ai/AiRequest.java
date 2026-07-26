@@ -2,31 +2,20 @@ package com.buildguard.ai;
 
 public class AiRequest {
 
-    private String report;
-    private String pdfPath;
+    private String prompt;
 
     public AiRequest() {
-        // Default constructor
     }
 
-    public AiRequest(String report, String pdfPath) {
-        this.report = report;
-        this.pdfPath = pdfPath;
+    public AiRequest(String prompt) {
+        this.prompt = prompt;
     }
 
-    public String getReport() {
-        return report;
+    public String getPrompt() {
+        return prompt;
     }
 
-    public void setReport(String report) {
-        this.report = report;
-    }
-
-    public String getPdfPath() {
-        return pdfPath;
-    }
-
-    public void setPdfPath(String pdfPath) {
-        this.pdfPath = pdfPath;
+    public void setPrompt(String prompt) {
+        this.prompt = prompt;
     }
 }

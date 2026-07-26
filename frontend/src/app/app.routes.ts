@@ -79,7 +79,7 @@ export const routes: Routes = [
         path: 'schedules',
         loadChildren: () => import('./features/schedules/schedules.routes').then(m => m.routes),
         canActivate: [roleGuard],
-        data: { roles: ['admin', 'engineer', 'foreman'] }
+        data: { roles: ['admin', 'engineer', 'foreman', 'inspector'] }
       },
       {
         path: 'notifications',
@@ -89,19 +89,19 @@ export const routes: Routes = [
         path: 'ai-review',
         loadChildren: () => import('./features/ai-review/ai-review.routes').then(m => m.routes),
         canActivate: [roleGuard],
-        data: { roles: ['admin', 'engineer'] }
+        data: { roles: ['admin', 'engineer', 'inspector'] }
       },
       {
         path: 'reports',
         loadChildren: () => import('./features/reports/reports.routes').then(m => m.routes),
         canActivate: [roleGuard],
-        data: { roles: ['admin', 'engineer'] }
+        data: { roles: ['admin', 'engineer', 'inspector'] }
       },
       {
         path: 'email',
         loadChildren: () => import('./features/email/email.routes').then(m => m.routes),
         canActivate: [roleGuard],
-        data: { roles: ['admin', 'engineer'] }
+        data: { roles: ['admin', 'engineer', 'inspector'] }
       },
       {
         path: 'profile',

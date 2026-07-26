@@ -62,3 +62,29 @@ services:
       - NOUS_HERMES_ENDPOINT=${NOUS_HERMES_ENDPOINT}
     networks:
       - buildguard-net
+
+  # -----------------------------------------------------------------
+  # 4. GenAI Service (FastAPI RAG Pipeline)
+  # AI Configuration:
+  # - AI Service: FastAPI
+  # - Base URL: http://127.0.0.1:8000
+  # - Health API: GET /health
+  # - Status API: GET /status
+  # - Analyze API: POST /analyze
+  # - Warning API: POST /warning
+  # - Swagger: http://127.0.0.1:8000/docs
+  # -----------------------------------------------------------------
+  genai:
+    build:
+      context: ./genai/BuildGuard-GenAI-main
+      dockerfile: Dockerfile
+    container_name: buildguard-genai
+    command: uvicorn app:app --host 0.0.0.0 --port 8000 --reload
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - APP_ENV=local
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    networks:
+      - buildguard-net

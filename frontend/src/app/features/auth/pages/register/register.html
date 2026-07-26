@@ -20,35 +20,13 @@
 
         <div class="form-grid">
           <!-- Full Name -->
-          <div class="form-group">
+          <div class="form-group" style="grid-column: span 2;">
             <label for="fullName">Full Name</label>
             <div class="input-wrapper" [ngClass]="{'has-error': registerForm.get('fullName')?.touched && registerForm.get('fullName')?.invalid}">
               <input type="text" id="fullName" formControlName="fullName" placeholder="Sarah Connor">
             </div>
             <span class="validation-message" *ngIf="registerForm.get('fullName')?.touched && registerForm.get('fullName')?.invalid">
               Full name is required
-            </span>
-          </div>
-
-          <!-- Employee ID -->
-          <div class="form-group">
-            <label for="employeeId">Employee ID</label>
-            <div class="input-wrapper" [ngClass]="{'has-error': registerForm.get('employeeId')?.touched && registerForm.get('employeeId')?.invalid}">
-              <input type="text" id="employeeId" formControlName="employeeId" placeholder="EMP-4420">
-            </div>
-            <span class="validation-message" *ngIf="registerForm.get('employeeId')?.touched && registerForm.get('employeeId')?.invalid">
-              Employee ID is required
-            </span>
-          </div>
-
-          <!-- Company Name -->
-          <div class="form-group">
-            <label for="companyName">Company Name</label>
-            <div class="input-wrapper" [ngClass]="{'has-error': registerForm.get('companyName')?.touched && registerForm.get('companyName')?.invalid}">
-              <input type="text" id="companyName" formControlName="companyName" placeholder="Apex Builders Inc.">
-            </div>
-            <span class="validation-message" *ngIf="registerForm.get('companyName')?.touched && registerForm.get('companyName')?.invalid">
-              Company name is required
             </span>
           </div>
 
@@ -63,13 +41,13 @@
             </span>
           </div>
 
-          <!-- Mobile Number -->
+          <!-- Phone Number -->
           <div class="form-group">
-            <label for="mobileNumber">Mobile Number</label>
-            <div class="input-wrapper" [ngClass]="{'has-error': registerForm.get('mobileNumber')?.touched && registerForm.get('mobileNumber')?.invalid}">
-              <input type="tel" id="mobileNumber" formControlName="mobileNumber" placeholder="+1 (555) 123-4567" inputmode="tel">
+            <label for="phone">Phone Number</label>
+            <div class="input-wrapper" [ngClass]="{'has-error': registerForm.get('phone')?.touched && registerForm.get('phone')?.invalid}">
+              <input type="tel" id="phone" formControlName="phone" placeholder="+1 (555) 123-4567" inputmode="tel">
             </div>
-            <span class="validation-message" *ngIf="registerForm.get('mobileNumber')?.touched && registerForm.get('mobileNumber')?.invalid">
+            <span class="validation-message" *ngIf="registerForm.get('phone')?.touched && registerForm.get('phone')?.invalid">
               Valid phone number is required
             </span>
           </div>
@@ -89,43 +67,27 @@
           </span>
         </div>
 
-        <div class="form-grid">
-          <!-- Password -->
-          <div class="form-group">
-            <label for="password">Password</label>
-            <div class="input-wrapper" [ngClass]="{'has-error': registerForm.get('password')?.touched && registerForm.get('password')?.invalid}">
-              <input type="password" id="password" formControlName="password" placeholder="Min. 6 chars">
-            </div>
-            
-            <!-- Password Strength Bar Indicator -->
-            <div class="strength-indicator-bar" *ngIf="registerForm.get('password')?.value">
-              <div class="strength-bar-fill" 
-                   [style.width.%]="passwordStrengthPercent"
-                   [ngClass]="passwordStrength"></div>
-              <span class="strength-label">Password strength: <span class="strength-text" [ngClass]="passwordStrength">{{ passwordStrength }}</span></span>
-            </div>
-
-            <span class="validation-message" *ngIf="registerForm.get('password')?.touched && registerForm.get('password')?.hasError('required')">
-              Password is required
-            </span>
-            <span class="validation-message" *ngIf="registerForm.get('password')?.touched && registerForm.get('password')?.hasError('minlength')">
-              Password must be at least 6 characters
-            </span>
+        <!-- Password -->
+        <div class="form-group">
+          <label for="password">Password</label>
+          <div class="input-wrapper" [ngClass]="{'has-error': registerForm.get('password')?.touched && registerForm.get('password')?.invalid}">
+            <input type="password" id="password" formControlName="password" placeholder="Min. 6 chars">
+          </div>
+          
+          <!-- Password Strength Bar Indicator -->
+          <div class="strength-indicator-bar" *ngIf="registerForm.get('password')?.value">
+            <div class="strength-bar-fill" 
+                 [style.width.%]="passwordStrengthPercent"
+                 [ngClass]="passwordStrength"></div>
+            <span class="strength-label">Password strength: <span class="strength-text" [ngClass]="passwordStrength">{{ passwordStrength }}</span></span>
           </div>
 
-          <!-- Confirm Password -->
-          <div class="form-group">
-            <label for="confirmPassword">Confirm Password</label>
-            <div class="input-wrapper" [ngClass]="{'has-error': (registerForm.get('confirmPassword')?.touched && registerForm.get('confirmPassword')?.invalid) || (registerForm.touched && registerForm.hasError('mismatch'))}">
-              <input type="password" id="confirmPassword" formControlName="confirmPassword" placeholder="Repeat password">
-            </div>
-            <span class="validation-message" *ngIf="registerForm.get('confirmPassword')?.touched && registerForm.get('confirmPassword')?.hasError('required')">
-              Confirm password is required
-            </span>
-            <span class="validation-message" *ngIf="registerForm.touched && registerForm.hasError('mismatch') && !registerForm.get('confirmPassword')?.hasError('required')">
-              Passwords do not match
-            </span>
-          </div>
+          <span class="validation-message" *ngIf="registerForm.get('password')?.touched && registerForm.get('password')?.hasError('required')">
+            Password is required
+          </span>
+          <span class="validation-message" *ngIf="registerForm.get('password')?.touched && registerForm.get('password')?.hasError('minlength')">
+            Password must be at least 6 characters
+          </span>
         </div>
 
         <!-- Accept Terms Checkbox -->

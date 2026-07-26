@@ -2,7 +2,7 @@ package com.buildguard.controller;
 
 import java.util.List;
 
-
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import com.buildguard.dto.UserRequest;
@@ -21,7 +21,7 @@ public class UserController {
         this.userService = userService;
     }
 
-    
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public UserResponse createUser(@Valid @RequestBody UserRequest request) {
 

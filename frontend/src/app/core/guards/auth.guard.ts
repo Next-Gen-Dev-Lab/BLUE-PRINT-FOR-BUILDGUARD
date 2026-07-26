@@ -16,7 +16,18 @@ export const authGuard: CanActivateFn = (route, state) => {
         // Double check session in localStorage just in case service is not fully initialized
         const savedUser = localStorage.getItem('bg_current_user');
         if (savedUser) {
-          return true;
+          try {
+            const parsed = JSON.parse(savedUser);
+            const validRoles = ['foreman', 'engineer', 'inspector', 'admin'];
+            if (parsed && parsed.id && parsed.role && validRoles.includes(parsed.role)) {
+              return true;
+            }
+          } catch {
+            // invalid JSON — fall through to redirect
+          }
+          // Stale session: clear it
+          localStorage.removeItem('bg_current_user');
+          localStorage.removeItem('bg_jwt_token');
         }
         return router.createUrlTree(['/auth/login']);
       }

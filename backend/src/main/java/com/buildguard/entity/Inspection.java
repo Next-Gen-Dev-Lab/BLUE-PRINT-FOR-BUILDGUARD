@@ -4,15 +4,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
 @Table(name = "inspections")
-@Getter
-@Setter
-@NoArgsConstructor
 public class Inspection {
 
     @Id
@@ -37,4 +31,63 @@ public class Inspection {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "progress_log_id")
     private ProgressLog progressLog;
+
+    public Inspection() {
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public LocalDate getInspectionDate() {
+        return inspectionDate;
+    }
+
+    public void setInspectionDate(LocalDate inspectionDate) {
+        this.inspectionDate = inspectionDate;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getRemarks() {
+        return remarks;
+    }
+
+    public void setRemarks(String remarks) {
+        this.remarks = remarks;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public User getInspector() {
+        return inspector;
+    }
+
+    public void setInspector(User inspector) {
+        this.inspector = inspector;
+    }
+
+    public ProgressLog getProgressLog() {
+        return progressLog;
+    }
+
+    public void setProgressLog(ProgressLog progressLog) {
+        this.progressLog = progressLog;
+    }
 }

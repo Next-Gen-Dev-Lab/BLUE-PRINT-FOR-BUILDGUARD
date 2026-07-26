@@ -2,8 +2,15 @@ import { User } from '../models';
 
 export function mapApiUserToUser(res: any): User {
   let mappedRole: User['role'] = 'foreman';
-  if (res.role === 'ADMIN') mappedRole = 'admin';
-  else if (res.role === 'PROJECT_ENGINEER') mappedRole = 'engineer';
+  const roleUpper = String(res.role || '').toUpperCase();
+
+  if (roleUpper === 'ADMIN') {
+    mappedRole = 'admin';
+  } else if (roleUpper === 'PROJECT_ENGINEER') {
+    mappedRole = 'engineer';
+  } else if (roleUpper === 'FOREMAN') {
+    mappedRole = 'foreman';
+  }
 
   return {
     id: String(res.id || ''),
@@ -40,6 +47,6 @@ export function mapRegistrationFormToApiRequest(form: any): any {
     email: form.email,
     password: form.password,
     role: mappedRole,
-    phone: form.mobileNumber || form.phone || ''
+    phone: form.phone || form.mobileNumber || ''
   };
 }

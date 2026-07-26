@@ -12,7 +12,7 @@ import com.buildguard.service.BlueprintService;
 
 @RestController
 @RequestMapping("/api/blueprints")
-
+@CrossOrigin(origins = "*")
 public class BlueprintController {
 
     private final BlueprintService blueprintService;

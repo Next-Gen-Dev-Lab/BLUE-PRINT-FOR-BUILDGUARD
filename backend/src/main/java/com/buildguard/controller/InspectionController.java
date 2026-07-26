@@ -9,7 +9,7 @@ import com.buildguard.service.InspectionService;
 
 @RestController
 @RequestMapping("/api/inspections")
-
+@CrossOrigin(origins = "*")
 public class InspectionController {
 
     private final InspectionService inspectionService;

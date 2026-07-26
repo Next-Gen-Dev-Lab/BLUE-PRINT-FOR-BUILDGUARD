@@ -38,30 +38,17 @@ export class RegisterComponent implements OnInit {
   ngOnInit(): void {
     this.registerForm = this.fb.group({
       fullName: ['', Validators.required],
-      employeeId: ['', Validators.required],
-      companyName: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
-      mobileNumber: ['', [Validators.required, Validators.pattern(/^\+?[\d\s\-()]{7,15}$/)]],
+      phone: ['', [Validators.required, Validators.pattern(/^\+?[\d\s\-()]{7,15}$/)]],
       role: ['', Validators.required],
       password: ['', [Validators.required, Validators.minLength(6)]],
-      confirmPassword: ['', Validators.required],
       acceptTerms: [false, Validators.requiredTrue]
-    }, { validators: this.passwordMatchValidator });
+    });
 
     // Reactively calculate password strength
     this.registerForm.get('password')?.valueChanges.subscribe(val => {
       this.calculatePasswordStrength(val || '');
     });
-  }
-
-  // Custom validator for matching passwords
-  passwordMatchValidator(control: AbstractControl): { [key: string]: boolean } | null {
-    const password = control.get('password');
-    const confirmPassword = control.get('confirmPassword');
-    
-    if (!password || !confirmPassword) return null;
-    
-    return password.value === confirmPassword.value ? null : { mismatch: true };
   }
 
   calculatePasswordStrength(pass: string): void {
@@ -106,9 +93,34 @@ export class RegisterComponent implements OnInit {
       },
       error: (err) => {
         this.isLoading = false;
-        this.errorMessage = err.message || 'Registration failed.';
+        this.errorMessage = this.extractErrorMessage(err);
         this.toast.error(this.errorMessage);
       }
     });
+  }
+
+  private extractErrorMessage(err: any): string {
+    // Network/connection failure (backend not running)
+    if (err?.status === 0) {
+      return 'Unable to connect to the server. Please ensure the backend service is running.';
+    }
+    // 409 Conflict — email already registered
+    if (err?.status === 409) {
+      return 'An account with this email already exists. Please sign in instead.';
+    }
+    // 400 Bad Request — validation error from backend
+    if (err?.status === 400) {
+      const body = err?.error;
+      if (typeof body === 'string' && body.length > 0) return body;
+      if (body?.message) return body.message;
+      if (body?.error) return body.error;
+      return 'Invalid registration details. Please check your inputs and try again.';
+    }
+    // 403 Forbidden — registration endpoint blocked
+    if (err?.status === 403) {
+      return 'Registration is currently restricted. Contact your system administrator.';
+    }
+    // Fallback to any message available
+    return err?.error?.message || err?.message || 'Registration failed. Please try again.';
   }
 }

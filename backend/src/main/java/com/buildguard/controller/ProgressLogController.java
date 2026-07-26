@@ -12,7 +12,7 @@ import com.buildguard.service.ProgressLogService;
 
 @RestController
 @RequestMapping("/api/progress-logs")
-
+@CrossOrigin(origins = "*")
 public class ProgressLogController {
 
     private final ProgressLogService progressLogService;

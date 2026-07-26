@@ -8,7 +8,7 @@ import com.buildguard.service.S3Service;
 
 @RestController
 @RequestMapping("/api/s3")
-
+@CrossOrigin("*")
 public class S3Controller {
 
     private final S3Service s3Service;

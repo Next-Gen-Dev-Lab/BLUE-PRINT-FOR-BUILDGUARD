@@ -9,7 +9,7 @@ import com.buildguard.service.ScheduleService;
 
 @RestController
 @RequestMapping("/api/schedules")
-
+@CrossOrigin(origins = "*")
 public class ScheduleController {
 
     private final ScheduleService scheduleService;

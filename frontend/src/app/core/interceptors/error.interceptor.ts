@@ -6,8 +6,19 @@ import { catchError } from 'rxjs/operators';
 import { ToastService } from '../services/toast.service';
 
 /**
+ * Public auth endpoints that handle their own errors locally in the component.
+ * The interceptor must NOT globally redirect for these routes.
+ */
+const AUTH_PASSTHROUGH_PATHS = ['/auth/login', '/auth/register', '/auth/me'];
+
+function isAuthPassthrough(url: string): boolean {
+  return AUTH_PASSTHROUGH_PATHS.some(path => url.includes(path));
+}
+
+/**
  * Functional HTTP Interceptor to catch global HTTP errors (401, 403, 404, 500)
  * and trigger proper routing transitions to the dedicated error viewport views.
+ * Auth endpoints (login, register) are excluded so they can handle errors locally.
  */
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {
   const router = inject(Router);
@@ -16,6 +27,11 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
   return next(req).pipe(
     catchError((err: any) => {
       if (err instanceof HttpErrorResponse) {
+        // Let auth-route components handle their own HTTP errors (400, 403, etc.)
+        if (isAuthPassthrough(req.url)) {
+          return throwError(() => err);
+        }
+
         switch (err.status) {
           case 401:
             toast.error('Session expired. Redirecting to login.');
@@ -24,7 +40,7 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
             router.navigate(['/auth/login']);
             break;
           case 403:
-            toast.error('Access Denied: Forbidden route.');
+            toast.error('Access Denied: Insufficient permissions.');
             router.navigate(['/403']);
             break;
           case 404:

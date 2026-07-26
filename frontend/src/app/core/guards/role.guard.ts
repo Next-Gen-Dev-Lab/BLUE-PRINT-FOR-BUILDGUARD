@@ -16,13 +16,30 @@ export const roleGuard: CanActivateFn = (route, state) => {
     take(1),
     map(user => {
       // Defensive session checkout from localStorage if service state is lagging
-      const activeUser = user || JSON.parse(localStorage.getItem('bg_current_user') || 'null');
-      
-      if (activeUser && expectedRoles.includes(activeUser.role)) {
+      const storedUser = localStorage.getItem('bg_current_user');
+      let activeUser = user;
+
+      if (!activeUser && storedUser) {
+        try {
+          activeUser = JSON.parse(storedUser);
+        } catch {
+          // invalid JSON - clear stale data
+          localStorage.removeItem('bg_current_user');
+          localStorage.removeItem('bg_jwt_token');
+          return router.createUrlTree(['/auth/login']);
+        }
+      }
+
+      if (!activeUser) {
+        // Not authenticated at all — send to login
+        return router.createUrlTree(['/auth/login']);
+      }
+
+      if (expectedRoles.includes(activeUser.role)) {
         return true;
       }
-      
-      // Redirect to professional forbidden error view page
+
+      // Authenticated but wrong role — redirect to forbidden
       return router.createUrlTree(['/403']);
     })
   );

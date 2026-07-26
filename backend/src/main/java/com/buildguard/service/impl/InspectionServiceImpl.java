@@ -3,6 +3,7 @@ package com.buildguard.service.impl;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
@@ -10,7 +11,6 @@ import com.buildguard.dto.InspectionResponseDto;
 import com.buildguard.entity.Inspection;
 import com.buildguard.entity.ProgressLog;
 import com.buildguard.entity.User;
-import com.buildguard.exception.ResourceNotFoundException;
 import com.buildguard.mapper.InspectionMapper;
 import com.buildguard.repository.InspectionRepository;
 import com.buildguard.repository.ProgressLogRepository;
@@ -19,10 +19,6 @@ import com.buildguard.service.InspectionService;
 
 @Service
 public class InspectionServiceImpl implements InspectionService {
-
-    private static final String INSPECTION_NOT_FOUND = "Inspection not found";
-    private static final String INSPECTOR_NOT_FOUND = "Inspector not found";
-    private static final String PROGRESS_LOG_NOT_FOUND = "Progress Log not found";
 
     private final InspectionRepository inspectionRepository;
     private final UserRepository userRepository;
@@ -50,12 +46,10 @@ public class InspectionServiceImpl implements InspectionService {
             Long progressLogId) {
 
         User inspector = userRepository.findById(inspectorId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(INSPECTOR_NOT_FOUND));
+                .orElseThrow(() -> new RuntimeException("Inspector not found"));
 
         ProgressLog progressLog = progressLogRepository.findById(progressLogId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(PROGRESS_LOG_NOT_FOUND));
+                .orElseThrow(() -> new RuntimeException("Progress Log not found"));
 
         Inspection inspection = new Inspection();
 
@@ -77,15 +71,14 @@ public class InspectionServiceImpl implements InspectionService {
         return inspectionRepository.findAll()
                 .stream()
                 .map(inspectionMapper::toDto)
-                .toList();
+                .collect(Collectors.toList());
     }
 
     @Override
     public InspectionResponseDto getInspectionById(Long id) {
 
         Inspection inspection = inspectionRepository.findById(id)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(INSPECTION_NOT_FOUND));
+                .orElseThrow(() -> new RuntimeException("Inspection not found"));
 
         return inspectionMapper.toDto(inspection);
     }
@@ -96,7 +89,7 @@ public class InspectionServiceImpl implements InspectionService {
         return inspectionRepository.findByProgressLogId(progressLogId)
                 .stream()
                 .map(inspectionMapper::toDto)
-                .toList();
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -107,8 +100,7 @@ public class InspectionServiceImpl implements InspectionService {
             String remarks) {
 
         Inspection inspection = inspectionRepository.findById(id)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(INSPECTION_NOT_FOUND));
+                .orElseThrow(() -> new RuntimeException("Inspection not found"));
 
         inspection.setInspectionDate(LocalDate.parse(inspectionDate));
         inspection.setStatus(status);
@@ -123,8 +115,7 @@ public class InspectionServiceImpl implements InspectionService {
     public void deleteInspection(Long id) {
 
         Inspection inspection = inspectionRepository.findById(id)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(INSPECTION_NOT_FOUND));
+                .orElseThrow(() -> new RuntimeException("Inspection not found"));
 
         inspectionRepository.delete(inspection);
     }

@@ -2,13 +2,13 @@ package com.buildguard.service.impl;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
 import com.buildguard.dto.SafetyViolationResponseDto;
 import com.buildguard.entity.Inspection;
 import com.buildguard.entity.SafetyViolation;
-import com.buildguard.exception.ResourceNotFoundException;
 import com.buildguard.mapper.SafetyViolationMapper;
 import com.buildguard.repository.InspectionRepository;
 import com.buildguard.repository.SafetyViolationRepository;
@@ -16,9 +16,6 @@ import com.buildguard.service.SafetyViolationService;
 
 @Service
 public class SafetyViolationServiceImpl implements SafetyViolationService {
-
-    private static final String INSPECTION_NOT_FOUND = "Inspection not found";
-    private static final String SAFETY_VIOLATION_NOT_FOUND = "Safety Violation not found";
 
     private final SafetyViolationRepository safetyViolationRepository;
     private final InspectionRepository inspectionRepository;
@@ -43,7 +40,7 @@ public class SafetyViolationServiceImpl implements SafetyViolationService {
             Long inspectionId) {
 
         Inspection inspection = inspectionRepository.findById(inspectionId)
-                .orElseThrow(() -> new ResourceNotFoundException(INSPECTION_NOT_FOUND));
+                .orElseThrow(() -> new RuntimeException("Inspection not found"));
 
         SafetyViolation violation = new SafetyViolation();
 
@@ -65,14 +62,14 @@ public class SafetyViolationServiceImpl implements SafetyViolationService {
         return safetyViolationRepository.findAll()
                 .stream()
                 .map(safetyViolationMapper::toDto)
-                .toList();
+                .collect(Collectors.toList());
     }
 
     @Override
     public SafetyViolationResponseDto getViolationById(Long id) {
 
         SafetyViolation violation = safetyViolationRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(SAFETY_VIOLATION_NOT_FOUND));
+                .orElseThrow(() -> new RuntimeException("Safety Violation not found"));
 
         return safetyViolationMapper.toDto(violation);
     }
@@ -83,7 +80,7 @@ public class SafetyViolationServiceImpl implements SafetyViolationService {
         return safetyViolationRepository.findByInspectionId(inspectionId)
                 .stream()
                 .map(safetyViolationMapper::toDto)
-                .toList();
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -95,7 +92,7 @@ public class SafetyViolationServiceImpl implements SafetyViolationService {
             String status) {
 
         SafetyViolation violation = safetyViolationRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(SAFETY_VIOLATION_NOT_FOUND));
+                .orElseThrow(() -> new RuntimeException("Safety Violation not found"));
 
         violation.setViolationType(violationType);
         violation.setDescription(description);
@@ -111,7 +108,7 @@ public class SafetyViolationServiceImpl implements SafetyViolationService {
     public void deleteViolation(Long id) {
 
         SafetyViolation violation = safetyViolationRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(SAFETY_VIOLATION_NOT_FOUND));
+                .orElseThrow(() -> new RuntimeException("Safety Violation not found"));
 
         safetyViolationRepository.delete(violation);
     }

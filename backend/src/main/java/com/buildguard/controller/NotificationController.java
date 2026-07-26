@@ -9,7 +9,7 @@ import com.buildguard.service.NotificationService;
 
 @RestController
 @RequestMapping("/api/notifications")
-
+@CrossOrigin(origins = "*")
 public class NotificationController {
 
     private final NotificationService notificationService;

@@ -1,23 +1,19 @@
 package com.buildguard.service.impl;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
 import com.buildguard.dto.ProjectRequest;
 import com.buildguard.dto.ProjectResponse;
 import com.buildguard.entity.Project;
-import com.buildguard.exception.DuplicateResourceException;
-import com.buildguard.exception.ResourceNotFoundException;
 import com.buildguard.mapper.ProjectMapper;
 import com.buildguard.repository.ProjectRepository;
 import com.buildguard.service.ProjectService;
 
 @Service
 public class ProjectServiceImpl implements ProjectService {
-
-    private static final String PROJECT_NOT_FOUND = "Project not found";
-    private static final String PROJECT_ALREADY_EXISTS = "Project already exists";
 
     private final ProjectRepository projectRepository;
 
@@ -29,10 +25,11 @@ public class ProjectServiceImpl implements ProjectService {
     public ProjectResponse createProject(ProjectRequest request) {
 
         if (projectRepository.existsByProjectName(request.getProjectName())) {
-            throw new DuplicateResourceException(PROJECT_ALREADY_EXISTS);
+            throw new RuntimeException("Project already exists");
         }
 
         Project project = ProjectMapper.toEntity(request);
+
         Project savedProject = projectRepository.save(project);
 
         return ProjectMapper.toResponse(savedProject);
@@ -44,15 +41,14 @@ public class ProjectServiceImpl implements ProjectService {
         return projectRepository.findAll()
                 .stream()
                 .map(ProjectMapper::toResponse)
-                .toList();
+                .collect(Collectors.toList());
     }
 
     @Override
     public ProjectResponse getProjectById(Long id) {
 
         Project project = projectRepository.findById(id)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(PROJECT_NOT_FOUND));
+                .orElseThrow(() -> new RuntimeException("Project not found"));
 
         return ProjectMapper.toResponse(project);
     }
@@ -61,8 +57,7 @@ public class ProjectServiceImpl implements ProjectService {
     public void deleteProject(Long id) {
 
         Project project = projectRepository.findById(id)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException(PROJECT_NOT_FOUND));
+                .orElseThrow(() -> new RuntimeException("Project not found"));
 
         projectRepository.delete(project);
     }

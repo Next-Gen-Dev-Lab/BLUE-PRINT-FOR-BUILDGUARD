@@ -9,7 +9,7 @@ import com.buildguard.service.SafetyViolationService;
 
 @RestController
 @RequestMapping("/api/safety-violations")
-
+@CrossOrigin(origins = "*")
 public class SafetyViolationController {
 
     private final SafetyViolationService safetyViolationService;

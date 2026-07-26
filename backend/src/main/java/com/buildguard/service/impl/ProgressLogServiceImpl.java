@@ -3,6 +3,7 @@ package com.buildguard.service.impl;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -11,7 +12,6 @@ import com.buildguard.dto.ProgressLogResponseDto;
 import com.buildguard.entity.ProgressLog;
 import com.buildguard.entity.Project;
 import com.buildguard.entity.User;
-import com.buildguard.exception.ResourceNotFoundException;
 import com.buildguard.mapper.ProgressLogMapper;
 import com.buildguard.repository.ProgressLogRepository;
 import com.buildguard.repository.ProjectRepository;
@@ -21,11 +21,6 @@ import com.buildguard.service.S3Service;
 
 @Service
 public class ProgressLogServiceImpl implements ProgressLogService {
-
-    private static final String PROJECT_NOT_FOUND = "Project not found";
-    private static final String USER_NOT_FOUND = "User not found";
-    private static final String UPLOADER_NOT_FOUND = "Uploaded By User not found";
-    private static final String PROGRESS_LOG_NOT_FOUND = "Progress Log not found";
 
     private final ProgressLogRepository progressLogRepository;
     private final ProjectRepository projectRepository;
@@ -58,27 +53,31 @@ public class ProgressLogServiceImpl implements ProgressLogService {
             MultipartFile image) {
 
         Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new ResourceNotFoundException(PROJECT_NOT_FOUND));
+                .orElseThrow(() -> new RuntimeException("Project not found"));
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException(USER_NOT_FOUND));
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
         User uploader = userRepository.findById(uploadedBy)
-                .orElseThrow(() -> new ResourceNotFoundException(UPLOADER_NOT_FOUND));
+                .orElseThrow(() -> new RuntimeException("Uploaded By User not found"));
 
         String imageUrl = s3Service.uploadFile(image);
 
         ProgressLog progressLog = new ProgressLog();
 
         progressLog.setDescription(description);
+
         progressLog.setImageName(image.getOriginalFilename());
         progressLog.setImageSize(image.getSize());
         progressLog.setImageType(image.getContentType());
         progressLog.setImageUrl(imageUrl);
+
         progressLog.setUploadedAt(LocalDateTime.now());
         progressLog.setCreatedAt(LocalDateTime.now());
+
         progressLog.setWorkDate(LocalDate.parse(workDate));
         progressLog.setWorkStatus(workStatus);
+
         progressLog.setProject(project);
         progressLog.setUser(user);
         progressLog.setUploadedBy(uploader);
@@ -94,14 +93,14 @@ public class ProgressLogServiceImpl implements ProgressLogService {
         return progressLogRepository.findAll()
                 .stream()
                 .map(progressLogMapper::toDto)
-                .toList();
+                .collect(Collectors.toList());
     }
 
     @Override
     public ProgressLogResponseDto getProgressLogById(Long id) {
 
         ProgressLog progressLog = progressLogRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(PROGRESS_LOG_NOT_FOUND));
+                .orElseThrow(() -> new RuntimeException("Progress Log not found"));
 
         return progressLogMapper.toDto(progressLog);
     }
@@ -112,7 +111,7 @@ public class ProgressLogServiceImpl implements ProgressLogService {
         return progressLogRepository.findByProjectId(projectId)
                 .stream()
                 .map(progressLogMapper::toDto)
-                .toList();
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -124,7 +123,7 @@ public class ProgressLogServiceImpl implements ProgressLogService {
             MultipartFile image) {
 
         ProgressLog progressLog = progressLogRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(PROGRESS_LOG_NOT_FOUND));
+                .orElseThrow(() -> new RuntimeException("Progress Log not found"));
 
         progressLog.setDescription(description);
         progressLog.setWorkDate(LocalDate.parse(workDate));
@@ -132,11 +131,11 @@ public class ProgressLogServiceImpl implements ProgressLogService {
 
         if (image != null && !image.isEmpty()) {
 
-            if (progressLog.getImageUrl() != null
-                    && !progressLog.getImageUrl().isEmpty()) {
+            if (progressLog.getImageUrl() != null &&
+                    !progressLog.getImageUrl().isEmpty()) {
 
                 String oldKey = progressLog.getImageUrl()
-                        .substring(progressLog.getImageUrl().lastIndexOf('/') + 1);
+                        .substring(progressLog.getImageUrl().lastIndexOf("/") + 1);
 
                 s3Service.deleteFile(oldKey);
             }
@@ -159,13 +158,13 @@ public class ProgressLogServiceImpl implements ProgressLogService {
     public void deleteProgressLog(Long id) {
 
         ProgressLog progressLog = progressLogRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(PROGRESS_LOG_NOT_FOUND));
+                .orElseThrow(() -> new RuntimeException("Progress Log not found"));
 
-        if (progressLog.getImageUrl() != null
-                && !progressLog.getImageUrl().isEmpty()) {
+        if (progressLog.getImageUrl() != null &&
+                !progressLog.getImageUrl().isEmpty()) {
 
             String fileKey = progressLog.getImageUrl()
-                    .substring(progressLog.getImageUrl().lastIndexOf('/') + 1);
+                    .substring(progressLog.getImageUrl().lastIndexOf("/") + 1);
 
             s3Service.deleteFile(fileKey);
         }

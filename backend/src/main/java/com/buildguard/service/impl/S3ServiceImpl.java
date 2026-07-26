@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.buildguard.exception.FileStorageException;
 import com.buildguard.service.S3Service;
 
 import software.amazon.awssdk.core.sync.RequestBody;
@@ -47,8 +46,8 @@ public class S3ServiceImpl implements S3Service {
 
             return "https://" + bucketName + ".s3.ap-south-1.amazonaws.com/" + fileName;
 
-        } catch (IOException exception) {
-            throw new FileStorageException("File upload failed", exception);
+        } catch (IOException e) {
+            throw new RuntimeException("File upload failed", e);
         }
     }
 
